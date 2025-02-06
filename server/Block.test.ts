@@ -1,4 +1,5 @@
 import { Block } from "./Block"
+import { GENESIS_BLOCK } from "./genesisBlock"
 import { Data } from "./types/Data"
 
 describe('Block', () => {
@@ -20,5 +21,15 @@ describe('Block', () => {
         expect(block.getLastHash()).toEqual(lastHash)
         expect(block.getHash()).toEqual(hash)
         expect(block.getData()).toEqual(data)
+    })
+})
+
+describe('genesis static function from Block class', () => {
+    const genesisBlock: Block = Block.genesis()
+    it('returns a Block instance', () => {
+        expect(genesisBlock instanceof Block).toBe(true)
+    })
+    it('returns the genesis data', () => {
+        expect(genesisBlock).toStrictEqual(GENESIS_BLOCK)
     })
 })

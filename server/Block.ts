@@ -1,6 +1,7 @@
 import { Data } from "./types/Data"
 import { IBlock } from "./types/IBlock"
 import { BlockParam } from "./types/BlockParam"
+import { GENESIS_DATA } from './genesisData'
 
 class Block implements IBlock {
     private readonly timestamp: Date
@@ -24,6 +25,10 @@ class Block implements IBlock {
     }
     getData(): Data {
         return this.data
+    }
+
+    static genesis(): Block {
+        return new this({ ...GENESIS_DATA })
     }
 }
 

@@ -1,4 +1,6 @@
-export type Data = {
-    [key: string]: string | number
+type objectStrKeyProp = {
+    [key: string]: string
 }
+
+export type Data = objectStrKeyProp | string
   
