@@ -17,19 +17,34 @@ describe('Block', () => {
         data
     })
     it('Block has a timestamp, lastHash, hash and data property', () => {
-        expect(block.getTimestamp()).toEqual(timestamp)
-        expect(block.getLastHash()).toEqual(lastHash)
-        expect(block.getHash()).toEqual(hash)
-        expect(block.getData()).toEqual(data)
+        expect<Date>(block.getTimestamp()).toEqual(timestamp)
+        expect<string>(block.getLastHash()).toEqual(lastHash)
+        expect<string>(block.getHash()).toEqual(hash)
+        expect<Data>(block.getData()).toEqual(data)
     })
 })
 
 describe('genesis static function from Block class', () => {
     const genesisBlock: Block = Block.genesis()
     it('returns a Block instance', () => {
-        expect(genesisBlock instanceof Block).toBe(true)
+        expect<boolean>(genesisBlock instanceof Block).toBe(true)
     })
     it('returns the genesis data', () => {
-        expect(genesisBlock).toStrictEqual(GENESIS_BLOCK)
+        expect<Block>(genesisBlock).toStrictEqual(GENESIS_BLOCK)
+    })
+})
+
+describe('mineBlock function to mine a Block', () => {
+    const lastBlock: Block = Block.genesis()
+    const data: string = 'mined data'
+    const minedBlock: Block = Block.mineBlock({ lastBlock, data })
+    it('sets tbe lastHash to be the hash of the last block', () => {
+        expect<string>(minedBlock.getLastHash()).toEqual(lastBlock.getHash())
+    })
+    it('sets tbe data', () => {
+        expect<Data>(minedBlock.getData()).toEqual(data)
+    })
+    it('sets a timestamp', () => {
+        expect<Date>(minedBlock.getTimestamp()).not.toEqual(undefined)
     })
 })

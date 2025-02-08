@@ -2,6 +2,7 @@ import { Data } from "./types/Data"
 import { IBlock } from "./types/IBlock"
 import { BlockParam } from "./types/BlockParam"
 import { GENESIS_DATA } from './genesisData'
+import { MineBlock } from "./types/MineBlock"
 
 class Block implements IBlock {
     private readonly timestamp: Date
@@ -30,6 +31,15 @@ class Block implements IBlock {
     static genesis(): Block {
         return new this({ ...GENESIS_DATA })
     }
+
+    static mineBlock({ lastBlock, data }: MineBlock): Block {
+        return new this({
+            timestamp: new Date(),
+            lastHash: lastBlock.hash,
+            hash: 'hash',
+            data
+        })
+    } 
 }
 
 export { Block }
