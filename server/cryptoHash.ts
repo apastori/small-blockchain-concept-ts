@@ -1,17 +1,16 @@
-import cryptoJS from 'crypto-js'
+import { sha3_256 } from 'js-sha3'
 import { Data } from './types/Data'
 
-export const cryptoHash = (...inputs: Data[]) => {
+export const cryptoHash = (...inputs: Data[]): string => {
     let data: string = ''
     const inputsSorted: Data[] = inputs.sort()
-    for (let i = 0; i++; i < inputs.length) {
+    for (let i = 0; i < inputs.length; i++) {
         const input = inputsSorted[i]
-        const inputData = typeof input === "string" ? input : JSON.stringify(input)
-        if (i !== inputs.length - 1) inputData + ' '
+        let inputData = typeof input === "string" ? input : JSON.stringify(input)
+        if (i !== inputs.length - 1) inputData = inputData + ' '
         data += inputData
     }
     console.log(data)
-    const hashSHA3: cryptoJS.lib.WordArray = cryptoJS.SHA3(data, { outputLength: 256 })
-    const hashEncHex = hashSHA3.toString(cryptoJS.enc.Hex)
-    return hashEncHex
+    const hashSHA3: string = sha3_256(data)
+    return hashSHA3
 }

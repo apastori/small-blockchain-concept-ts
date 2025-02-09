@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
+    "start": "npx concurrently \"tsc --watch\" \"node --watch build/index.js\"",
     "test": "jest --watchAll --config=jest.server.config.ts"
   },
   "keywords": [],
@@ -10,7 +11,6 @@
   "license": "ISC",
   "description": "",
   "devDependencies": {
-    "@types/crypto-js": "^4.2.2",
     "@types/jest": "^29.5.14",
     "concurrently": "^9.1.2",
     "jest": "^29.7.0",
@@ -19,6 +19,6 @@
     "typescript": "^5.7.3"
   },
   "dependencies": {
-    "crypto-js": "^4.2.0"
+    "js-sha3": "^0.9.3"
   }
 }
