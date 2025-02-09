@@ -1,4 +1,5 @@
 import { Block } from "./Block"
+import { cryptoHash } from "./cryptoHash"
 import { GENESIS_BLOCK } from "./genesisBlock"
 import { Data } from "./types/Data"
 
@@ -46,5 +47,8 @@ describe('mineBlock function to mine a Block', () => {
     })
     it('sets a timestamp', () => {
         expect<Date>(minedBlock.getTimestamp()).not.toEqual(undefined)
+    })
+    it('Creates a SHA3-256 `hash` based on the proper inputs', () => {
+        expect<string>(minedBlock.getHash()).toEqual(cryptoHash(minedBlock.getTimestampString(), lastBlock.getHash(), data))
     })
 })

@@ -10,7 +10,6 @@ export const cryptoHash = (...inputs: Data[]): string => {
         if (i !== inputs.length - 1) inputData = inputData + ' '
         data += inputData
     }
-    console.log(data)
     const hashSHA3: string = sha3_256(data)
     return hashSHA3
 }

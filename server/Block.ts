@@ -3,6 +3,7 @@ import { IBlock } from "./types/IBlock"
 import { BlockParam } from "./types/BlockParam"
 import { GENESIS_DATA } from './genesisData'
 import { MineBlock } from "./types/MineBlock"
+import { cryptoHash } from "./cryptoHash"
 
 class Block implements IBlock {
     private readonly timestamp: Date
@@ -14,6 +15,9 @@ class Block implements IBlock {
         this.lastHash = lastHash
         this.hash = hash
         this.data = data
+    }
+    getTimestampString(): string {
+        return this.timestamp.toISOString()
     }
     getTimestamp(): Date {
         return this.timestamp
@@ -33,11 +37,14 @@ class Block implements IBlock {
     }
 
     static mineBlock({ lastBlock, data }: MineBlock): Block {
+        const timestamp: Date = new Date()
+        const lastHash: string = lastBlock.hash
+        const hash: string = cryptoHash(timestamp.toISOString(), lastHash, data)
         return new this({
-            timestamp: new Date(),
-            lastHash: lastBlock.hash,
-            hash: 'hash',
-            data
+            timestamp,
+            lastHash,
+            data,
+            hash
         })
     } 
 }
