@@ -3,7 +3,11 @@ import { Data } from './types/Data'
 
 export const cryptoHash = (...inputs: Data[]): string => {
     let data: string = ''
-    const inputsSorted: Data[] = inputs.sort()
+    const inputsSorted: Data[] = inputs.sort((a, b) => {
+        const valA: string = typeof a === "string" ? a : JSON.stringify(a)
+        const valB: string = typeof b === "string" ? b : JSON.stringify(b)
+        return valA.localeCompare(valB, "en", { sensitivity: "variant" })
+    })
     for (let i = 0; i < inputs.length; i++) {
         const input = inputsSorted[i]
         let inputData = typeof input === "string" ? input : JSON.stringify(input)
