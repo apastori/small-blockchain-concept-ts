@@ -4,7 +4,7 @@
   "main": "index.js",
   "scripts": {
     "start": "npx concurrently \"tsc --watch\" \"node --watch build/index.js\"",
-    "test": "jest --watchAll --config=jest.server.config.ts"
+    "test": "jest --watchAll --config=jest.server.config.ts --color"
   },
   "keywords": [],
   "author": "",

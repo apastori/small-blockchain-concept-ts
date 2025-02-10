@@ -39,6 +39,9 @@ describe('mineBlock function to mine a Block', () => {
     const lastBlock: Block = Block.genesis()
     const data: string = 'mined data'
     const minedBlock: Block = Block.mineBlock({ lastBlock, data })
+    it('returns a Block instance', () => {
+        expect<boolean>(minedBlock instanceof Block).toBe(true)
+    })
     it('sets tbe lastHash to be the hash of the last block', () => {
         expect<string>(minedBlock.getLastHash()).toEqual(lastBlock.getHash())
     })
