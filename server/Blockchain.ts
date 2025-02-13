@@ -59,34 +59,45 @@ class Blockchain implements IBlockchain {
     }
 
     fakeChainLastHashBroken(): Block[] {
-        const fakeChain: Block[] = this.getChain()
-        const fakeData: string[] = ['Bears', 'Beets', 'Chess']
-        const randomNumber1to3: randomNumberFakeChain = Math.floor(Math.random() * 3) + 1 as randomNumberFakeChain
-        fakeData.forEach((fakeElement: string, index: number) => {
-            if (index === randomNumber1to3) {
-                const newBlock: Block = Block.mineFakeBlock(fakeElement)
+        const fakeChain: Block[] = new Array<Block>()
+        const currentChain: Block[] = this.getChain()
+        if (currentChain.length === 1) {
+            const fakeData: string[] = ['Bears', 'Beets', 'Chess']
+            fakeData.forEach((fakeElement: string) => {
+                const newBlock: Block = Block.mineBlock({
+                    lastBlock: currentChain[currentChain.length - 1] as Block,
+                    data: fakeElement
+                })
+                currentChain.push(newBlock)    
+            })
+        }
+        const randomIndex: number = Math.floor(Math.random() * (currentChain.length - 1)) + 1
+        currentChain.forEach((block: Block, index: number) => {
+            if (index === randomIndex) {
+                const newBlock = new Block({
+                    timestamp: block.getTimestamp(),
+                    lastHash: 'fake-hash',
+                    hash: block.getHash(),
+                    data: block.getData()
+                })
                 fakeChain.push(newBlock)
                 return
             }
-            const newBlock: Block = Block.mineBlock({
-                lastBlock: fakeChain[fakeChain.length - 1] as Block,
-                data: fakeElement
-            })
-            fakeChain.push(newBlock)    
-        })
+            fakeChain.push(block)
+        })    
         return fakeChain
     }
 
     fakeChainInvalidData(): Block[] {
         const fakeChain: Block[] = new Array<Block>()
         const currentChain: Block[] = this.getChain()
-        const randomIndex = Math.floor(Math.random() * currentChain.length)
+        const randomIndex: number = Math.floor(Math.random() * (currentChain.length - 1)) + 1
         this.getChain().forEach((block: Block, index: number) => {
             if (index === randomIndex) {
                 const newFakeDataBlock = new Block({
                     timestamp: block.getTimestamp(),
                     lastHash: block.getLastHash(),
-                    hash: block.getLastHash(),
+                    hash: block.getHash(),
                     data: 'fake-data'
                 })
                 fakeChain.push(newFakeDataBlock)

@@ -39,7 +39,8 @@ describe('Blockchain', () => {
         describe('When the chain starts with the genesis block and has multiple blocks', () => {
             describe('and a lastHash reference has changes',  () => {
                 it('returns false', () => {
-                    expect<boolean>(Blockchain.isValidChain(fakeChain.fakeChainLastHashBroken())).toBe(false)
+                    const fakeChainLastHash: Block[] = fakeChain.fakeChainLastHashBroken()
+                    expect<boolean>(Blockchain.isValidChain(fakeChainLastHash)).toBe(false)
                 })
             })
             describe('and the chain contains a block with an invalid field',  () => {
