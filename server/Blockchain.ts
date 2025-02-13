@@ -11,12 +11,12 @@ class Blockchain implements IBlockchain {
     constructor() {
         this.chain = [Block.genesis()]
     }
-    
+     
     getChain(): Block[] {
         return this.chain
     }
 
-    getLength(): number {
+    getChainLength(): number {
         return this.chain.length
     }
 
@@ -30,6 +30,19 @@ class Blockchain implements IBlockchain {
 
     getGenesisBlock(): Block {
         return this.chain[0]!
+    }
+
+    replaceChain(chain: Block[]): void {
+        if (chain.length <= this.getChainLength()) {
+            console.error('new chain is not longer than the current chain')
+            return
+        }
+        if (!Blockchain.isValidChain(chain)) {
+            console.error('new chain is not valid')
+            return
+        }
+        console.log('longer and valid new chain', chain)
+        this.chain = chain
     }
 
     fakeChainGenesisBlock(): Block[] {

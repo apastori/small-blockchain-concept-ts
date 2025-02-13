@@ -4,8 +4,9 @@ import { Data } from "./Data"
 export interface IBlockchain {
     getChain(): Block[],
     addBlock({ data }: { data: Data}): void,
-    getLength(): number,
+    getChainLength(): number,
     getGenesisBlock(): Block,
+    replaceChain(chain: Block[]): void
     fakeChainGenesisBlock(): Block[],
     fakeChainLastHashBroken(): Block[],
     fakeChaininvalidData(): Block[]
