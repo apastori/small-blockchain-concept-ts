@@ -9,5 +9,5 @@ export interface IBlockchain {
     replaceChain(chain: Block[]): void
     fakeChainGenesisBlock(): Block[],
     fakeChainLastHashBroken(): Block[],
-    fakeChaininvalidData(): Block[]
+    fakeChainInvalidData(): Block[]
 }

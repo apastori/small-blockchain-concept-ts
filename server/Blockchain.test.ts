@@ -44,7 +44,7 @@ describe('Blockchain', () => {
             })
             describe('and the chain contains a block with an invalid field',  () => {
                 it('returns false', () => {
-                    expect<boolean>(Blockchain.isValidChain(fakeChain.fakeChaininvalidData())).toBe(false)
+                    expect<boolean>(Blockchain.isValidChain(fakeChain.fakeChainInvalidData())).toBe(false)
                 })
             })
             describe('and the chain does not contain any invalid blocks',  () => {
@@ -64,7 +64,7 @@ describe('Blockchain', () => {
         })
         describe('when the new chain is not longer',  () => {
             beforeEach(() => {
-                blockchain.replaceChain(newChain.fakeChaininvalidData())
+                blockchain.replaceChain(newChain.fakeChainInvalidData())
             })
             it('it does not replace the chain', () => {
                 expect<Block[]>(blockchain.getChain()).toEqual(originalChain.getChain())
@@ -87,7 +87,7 @@ describe('Blockchain', () => {
                     expect<Block[]>(blockchain.getChain()).toEqual(originalChain.getChain())
                 })
                 //it('logs an error', () => {
-                //    expect(errorMock).toHaveBeenCalled()
+                    //expect(errorMock).toHaveBeenCalled()
                 //})
             })
             describe('and the chain is valid', () => {

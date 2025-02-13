@@ -48,7 +48,7 @@ class Blockchain implements IBlockchain {
     fakeChainGenesisBlock(): Block[] {
         const fakeChain: Block[] = this.getChain()
         const { timestamp, lastHash, hash }: 
-        { timestamp: Date, lastHash: string, hash: string} = GENESIS_DATA
+        { timestamp: Date, lastHash: string, hash: string } = GENESIS_DATA
         fakeChain[0] = new Block({
             timestamp,
             lastHash,
@@ -77,7 +77,7 @@ class Blockchain implements IBlockchain {
         return fakeChain
     }
 
-    fakeChaininvalidData(): Block[] {
+    fakeChainInvalidData(): Block[] {
         const fakeChain: Block[] = new Array<Block>()
         const currentChain: Block[] = this.getChain()
         const randomIndex = Math.floor(Math.random() * currentChain.length)
