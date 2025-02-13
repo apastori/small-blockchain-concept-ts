@@ -46,7 +46,20 @@ class Block implements IBlock {
             data,
             hash
         })
+    }
+    
+    static mineFakeBlock(data: Data): Block {
+        const timestamp: Date = new Date()
+        const lastHash: string = 'fake-hash'
+        const hash: string = cryptoHash(timestamp.toISOString(), lastHash, data)
+        return new this({
+            timestamp,
+            lastHash,
+            data,
+            hash
+        })
     } 
+
 }
 
 export { Block }

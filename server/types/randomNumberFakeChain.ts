@@ -1,0 +1,1 @@
+export type randomNumberFakeChain = 1 | 2 | 3
