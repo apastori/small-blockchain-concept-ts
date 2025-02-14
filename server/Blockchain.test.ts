@@ -70,9 +70,9 @@ describe('Blockchain', () => {
             it('it does not replace the chain', () => {
                 expect<Block[]>(blockchain.getChain()).toEqual(originalChain.getChain())
             })
-            //it('logs an error', () => {
-                //expect(errorMock).toHaveBeenCalled()
-            //})
+            it('logs an error', () => {
+                expect(errorMock).toHaveBeenCalled()
+            })
         })
         describe('when the new chain is in fact longer',  () => {
             beforeEach(() => {
@@ -87,18 +87,20 @@ describe('Blockchain', () => {
                 it('it does not replace the new chain', () => {
                     expect<Block[]>(blockchain.getChain()).toEqual(originalChain.getChain())
                 })
-                //it('logs an error', () => {
-                    //expect(errorMock).toHaveBeenCalled()
-                //})
+                it('logs an error', () => {
+                    expect(errorMock).toHaveBeenCalled()
+                })
             })
             describe('and the chain is valid', () => {
-                it('replaces the chain', () => {
+                beforeEach(() => {
                     blockchain.replaceChain(newChain.getChain())
+                })
+                it('replaces the chain', () => {
                     expect<Block[]>(blockchain.getChain()).toEqual(newChain.getChain())
                 })
-                //it('logs about the chain replacement', () => {
-                    //expect(logMock).toHaveBeenCalled()
-                //})
+                it('logs about the chain replacement', () => {
+                    expect(logMock).toHaveBeenCalled()
+                })
             })
         })
     })
