@@ -4,6 +4,7 @@ import { BlockParam } from "./types/BlockParam"
 import { GENESIS_DATA } from './genesisData'
 import { MineBlock } from "./types/MineBlock"
 import { cryptoHash } from "./cryptoHash"
+import { MINE_RATE } from "./mineRate"
 
 class Block implements IBlock {
     private readonly timestamp: Date
@@ -87,7 +88,14 @@ class Block implements IBlock {
             difficulty,
             nonce
         })
-    } 
+    }
+    
+    static adjustDifficulty(originalBlock: Block, timestamp: number): number {
+        const difficulty: number = originalBlock.getDifficulty()
+        const difference: number = timestamp - originalBlock.getTimestamp().getTime()
+        if (difference > MINE_RATE) return difficulty - 1
+        return difficulty + 1
+    }
 
 }
 

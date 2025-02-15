@@ -1,0 +1,1 @@
+export const MINE_RATE: number = 1000
