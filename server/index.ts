@@ -1,5 +1,5 @@
 import { cryptoHash } from './cryptoHash'
+import { averageWork } from './averageWork'
 
-cryptoHash('foo')
-
-console.log(cryptoHash('foo'))
+// Checking Average Work
+averageWork()
