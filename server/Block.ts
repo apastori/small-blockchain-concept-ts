@@ -51,12 +51,13 @@ class Block implements IBlock {
     static mineBlock({ lastBlock, data }: MineBlock): Block {
         let hash: string
         let timestamp: Date
-        const lastHash: string = lastBlock.hash
-        const difficulty: number = lastBlock.getDifficulty()
+        const lastHash: string = lastBlock.getHash()
+        let difficulty: number = lastBlock.getDifficulty()
         let nonce: number = 0
         do {
             nonce++
             timestamp = new Date()
+            difficulty = Block.adjustDifficulty(lastBlock, timestamp.getTime())
             hash = cryptoHash(timestamp.toISOString(), lastHash, data, String(nonce), String(difficulty))
         } while (hash?.substring(0, difficulty) !== '0'.repeat(difficulty))
         return new this({
