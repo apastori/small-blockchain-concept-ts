@@ -72,7 +72,7 @@ describe('Block', () => {
         })
         it('Adjusts the difficulty Function to dynamically regulate the difficulty of the Blockchain at any given moment', () => {
             const possibleResults: number[] = [lastBlock.getDifficulty() + 1, lastBlock.getDifficulty() - 1]
-            expect(possibleResults.includes(minedBlock.getDifficulty())).toBe(true)
+            expect<boolean>(possibleResults.includes(minedBlock.getDifficulty())).toBe(true)
         })
     })
     
@@ -83,7 +83,7 @@ describe('Block', () => {
         })
         it('lowers the difficulty for a quickly mined block', () => {
             const timestamp: Date = block.getTimestamp()
-            expect(Block.adjustDifficulty(block, timestamp.getTime() + MINE_RATE + 100)).toEqual(block.getDifficulty() - 1)
+            expect<number>(Block.adjustDifficulty(block, timestamp.getTime() + MINE_RATE + 100)).toEqual(block.getDifficulty() - 1)
         })
         it('has a lower limit of 1', () => {
             const timestamp_: Date = block.getTimestamp()
@@ -100,7 +100,7 @@ describe('Block', () => {
                 nonce: nonce_,
                 difficulty: difficulty_
             })
-            expect(Block.adjustDifficulty(newBlock, Date.now())).toEqual(1)
+            expect<number>(Block.adjustDifficulty(newBlock, Date.now())).toEqual(1)
         })
     })
 })

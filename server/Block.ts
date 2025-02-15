@@ -24,6 +24,9 @@ class Block implements IBlock {
     getTimestampString(): string {
         return this.timestamp.toISOString()
     }
+    getTimestampNumber(): number {
+        return this.timestamp.getTime()
+    }
     getTimestamp(): Date {
         return this.timestamp
     }

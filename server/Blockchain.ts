@@ -10,13 +10,17 @@ class Blockchain implements IBlockchain {
     constructor() {
         this.chain = [Block.genesis()]
     }
-     
+    
     getChain(): Block[] {
         return this.chain
     }
 
     getChainLength(): number {
         return this.chain.length
+    }
+
+    getLastBlock(): Block {
+        return this.getChain()[this.getChainLength() - 1] as Block
     }
 
     addBlock({ data }: { data: Data }): void {
