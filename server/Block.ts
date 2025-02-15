@@ -10,11 +10,15 @@ class Block implements IBlock {
     private readonly lastHash: string
     private readonly hash: string 
     private readonly data: Data
-    constructor({ timestamp, lastHash, hash, data }: BlockParam) {
+    private readonly nonce: number
+    private readonly difficulty: number
+    constructor({ timestamp, lastHash, hash, data, nonce, difficulty }: BlockParam) {
         this.timestamp = timestamp
         this.lastHash = lastHash
         this.hash = hash
         this.data = data
+        this.nonce = nonce
+        this.difficulty = difficulty
     }
     getTimestampString(): string {
         return this.timestamp.toISOString()
@@ -32,31 +36,56 @@ class Block implements IBlock {
         return this.data
     }
 
+    getNonce(): number {
+        return this.nonce
+    }
+    getDifficulty(): number {
+        return this.difficulty
+    }
+
     static genesis(): Block {
         return new this({ ...GENESIS_DATA })
     }
 
     static mineBlock({ lastBlock, data }: MineBlock): Block {
-        const timestamp: Date = new Date()
+        let hash: string
+        let timestamp: Date
         const lastHash: string = lastBlock.hash
-        const hash: string = cryptoHash(timestamp.toISOString(), lastHash, data)
+        const difficulty: number = lastBlock.getDifficulty()
+        let nonce: number = 0
+        do {
+            nonce++
+            timestamp = new Date()
+            hash = cryptoHash(timestamp.toISOString(), lastHash, data, String(nonce), String(difficulty))
+        } while (hash?.substring(0, difficulty) !== '0'.repeat(difficulty))
         return new this({
             timestamp,
             lastHash,
             data,
+            difficulty,
+            nonce,
             hash
         })
     }
     
-    static mineFakeBlock(data: Data): Block {
-        const timestamp: Date = new Date()
+    static mineFakeBlock({ lastBlock, data }: MineBlock): Block {
+        let hash: string
+        let timestamp: Date
         const lastHash: string = 'fake-hash'
-        const hash: string = cryptoHash(timestamp.toISOString(), lastHash, data)
+        const difficulty: number = lastBlock.getDifficulty()
+        let nonce: number = 0
+        do {
+            nonce++
+            timestamp = new Date()
+            hash = cryptoHash(timestamp.toISOString(), lastHash, data, String(nonce), String(difficulty))
+        } while (hash?.substring(0, difficulty) !== '0'.repeat(difficulty))
         return new this({
             timestamp,
             lastHash,
             data,
-            hash
+            hash,
+            difficulty,
+            nonce
         })
     } 
 

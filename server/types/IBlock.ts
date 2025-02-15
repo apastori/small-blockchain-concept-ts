@@ -5,5 +5,7 @@ export interface IBlock {
     getTimestampString(): string,
     getLastHash(): string,
     getHash(): string,
-    getData(): Data
+    getData(): Data,
+    getNonce(): number,
+    getDifficulty(): number
 }

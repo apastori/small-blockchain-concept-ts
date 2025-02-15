@@ -2,7 +2,6 @@ import { Block } from "./Block"
 import { Data } from "./types/Data"
 import { IBlockchain } from "./types/IBlockchain"
 import { GENESIS_DATA } from "./genesisData"
-import { randomNumberFakeChain } from "./types/randomNumberFakeChain"
 import { cryptoHash } from "./cryptoHash"
 
 class Blockchain implements IBlockchain {
@@ -47,13 +46,15 @@ class Blockchain implements IBlockchain {
 
     fakeChainGenesisBlock(): Block[] {
         const fakeChain: Block[] = this.getChain()
-        const { timestamp, lastHash, hash }: 
-        { timestamp: Date, lastHash: string, hash: string } = GENESIS_DATA
+        const { timestamp, lastHash, hash, nonce, difficulty }: 
+        { timestamp: Date, lastHash: string, hash: string, nonce: number, difficulty: number } = GENESIS_DATA
         fakeChain[0] = new Block({
             timestamp,
             lastHash,
             hash,
-            data: 'fake-genesis'
+            data: 'fake-genesis',
+            nonce,
+            difficulty
         })
         return fakeChain
     }
@@ -78,7 +79,9 @@ class Blockchain implements IBlockchain {
                     timestamp: block.getTimestamp(),
                     lastHash: 'fake-hash',
                     hash: block.getHash(),
-                    data: block.getData()
+                    data: block.getData(),
+                    nonce: block.getNonce(),
+                    difficulty: block.getDifficulty()
                 })
                 fakeChain.push(newBlock)
                 return
@@ -98,6 +101,8 @@ class Blockchain implements IBlockchain {
                     timestamp: block.getTimestamp(),
                     lastHash: block.getLastHash(),
                     hash: block.getHash(),
+                    nonce: block.getNonce(),
+                    difficulty: block.getDifficulty(),
                     data: 'fake-data'
                 })
                 fakeChain.push(newFakeDataBlock)
@@ -117,8 +122,10 @@ class Blockchain implements IBlockchain {
             const lastHash: string = block.getLastHash()
             const hash: string = block.getHash()
             const data: Data = block.getData()
+            const nonce: number = block.getNonce()
+            const difficulty: number = block.getDifficulty()
             if (lastHash !== correctLastHash) return false
-            const validatedHash: string = cryptoHash(timestamp.toISOString(), lastHash, data)
+            const validatedHash: string = cryptoHash(timestamp.toISOString(), lastHash, data, String(nonce), String(difficulty))
             if (hash !== validatedHash) return false     
         }
         return true
