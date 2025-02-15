@@ -93,6 +93,7 @@ class Block implements IBlock {
     
     static adjustDifficulty(originalBlock: Block, timestamp: number): number {
         const difficulty: number = originalBlock.getDifficulty()
+        if (difficulty < 1) return 1
         const difference: number = timestamp - originalBlock.getTimestamp().getTime()
         if (difference > MINE_RATE) return difficulty - 1
         return difficulty + 1

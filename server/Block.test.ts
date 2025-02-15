@@ -70,7 +70,7 @@ describe('Block', () => {
         it('Sets a `hash` that matches the difficulty criteria', () => {
             expect<string>(minedBlock.getHash().substring(0, minedBlock.getDifficulty())).toEqual('0'.repeat(minedBlock.getDifficulty()))
         })
-        it('Adjusts the difficulty', () => {
+        it('Adjusts the difficulty Function to dynamically regulate the difficulty of the Blockchain at any given moment', () => {
             const possibleResults: number[] = [lastBlock.getDifficulty() + 1, lastBlock.getDifficulty() - 1]
             expect(possibleResults.includes(minedBlock.getDifficulty())).toBe(true)
         })
@@ -79,11 +79,28 @@ describe('Block', () => {
     describe('mineBlock function to mine a Block', () => { 
         it('raises the difficulty for a quickly mined block', () => {
             const timestamp: Date = block.getTimestamp()
-            expect(Block.adjustDifficulty(block, timestamp.getTime() + MINE_RATE - 100)).toEqual(block.getDifficulty() + 1)
+            expect<number>(Block.adjustDifficulty(block, timestamp.getTime() + MINE_RATE - 100)).toEqual(block.getDifficulty() + 1)
         })
         it('lowers the difficulty for a quickly mined block', () => {
             const timestamp: Date = block.getTimestamp()
             expect(Block.adjustDifficulty(block, timestamp.getTime() + MINE_RATE + 100)).toEqual(block.getDifficulty() - 1)
+        })
+        it('has a lower limit of 1', () => {
+            const timestamp_: Date = block.getTimestamp()
+            const hash_: string = block.getHash()
+            const lastHash_: string = block.getLastHash()
+            const data_: Data = block.getData()
+            const nonce_: number = block.getNonce()
+            const difficulty_: -1 = -1
+            const newBlock: Block = new Block({
+                timestamp: timestamp_,
+                lastHash: lastHash_,
+                hash: hash_,
+                data: data_,
+                nonce: nonce_,
+                difficulty: difficulty_
+            })
+            expect(Block.adjustDifficulty(newBlock, Date.now())).toEqual(1)
         })
     })
 })
