@@ -5,6 +5,7 @@ export interface IBlockchain {
     getChain(): Block[],
     addBlock({ data }: { data: Data}): void,
     getChainLength(): number,
+    getLastBlock(): Block,
     getGenesisBlock(): Block,
     replaceChain(chain: Block[]): void
     fakeChainGenesisBlock(): Block[],
