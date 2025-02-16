@@ -21,6 +21,7 @@ const averageWork = (): void => {
         average = times.reduce((total: number, num: number) => {
             return total + num
         }) / times.length
+        console.log(nextBlock)
         console.log(`Time to mine block: ${timeDiff}ms. Difficulty: ${nextBlock.getDifficulty()}. Average time: ${average}ms`)
     }
 }
