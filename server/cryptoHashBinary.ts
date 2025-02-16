@@ -1,8 +1,8 @@
 import { sha3_256 } from 'js-sha3'
 import { Data } from './types/Data'
-import { hexToBinary } from './hexToBinary'
+import { hexToBinaryLookup } from './hexToBinaryLookup'
 
-export const cryptoHash = (...inputs: Data[]): string => {
+export const cryptoHashBinary = (...inputs: Data[]): string => {
     let data: string = ''
     const inputsSorted: Data[] = inputs.sort((a, b) => {
         const valA: string = typeof a === "string" ? a : JSON.stringify(a)
@@ -15,6 +15,6 @@ export const cryptoHash = (...inputs: Data[]): string => {
         if (i !== inputs.length - 1) inputData = inputData + ' '
         data += inputData
     }
-    const hashSHA3: string = sha3_256(data)
+    const hashSHA3: string = hexToBinaryLookup(sha3_256(data))
     return hashSHA3
 }

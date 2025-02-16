@@ -3,7 +3,7 @@ import { HexDigit } from "./types/HexDigit"
 import { HexToBinaryLookup } from "./types/HexToBinaryLookup"
 import { isHexDigit } from "./utils/isHexDigit"
 
-export function hexToBinary(hex: string) {
+export function hexToBinaryLookup(hex: string) {
     let binaryHash: string = ''
     const lookupHexBinary: HexToBinaryLookup = {
         '0': '0000',

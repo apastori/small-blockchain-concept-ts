@@ -5,6 +5,7 @@ import { GENESIS_DATA } from './genesisData'
 import { MineBlock } from "./types/MineBlock"
 import { cryptoHash } from "./cryptoHash"
 import { MINE_RATE } from "./mineRate"
+import { hexToBinary } from "./hexToBinary"
 
 class Block implements IBlock {
     private readonly timestamp: Date
@@ -62,7 +63,7 @@ class Block implements IBlock {
             timestamp = new Date()
             difficulty = Block.adjustDifficulty(lastBlock, timestamp.getTime())
             hash = cryptoHash(timestamp.toISOString(), lastHash, data, String(nonce), String(difficulty))
-        } while (hash?.substring(0, difficulty) !== '0'.repeat(difficulty))
+        } while (hexToBinary(hash).substring(0, difficulty) !== '0'.repeat(difficulty))
         return new this({
             timestamp,
             lastHash,

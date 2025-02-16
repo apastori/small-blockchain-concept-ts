@@ -1,6 +1,8 @@
 import { Block } from "./Block"
 import { cryptoHash } from "./cryptoHash"
+import { cryptoHashBinary } from "./cryptoHashBinary"
 import { GENESIS_BLOCK } from "./genesisBlock"
+import { hexToBinary } from "./hexToBinary"
 import { MINE_RATE } from "./mineRate"
 import { Data } from "./types/Data"
 
@@ -68,11 +70,22 @@ describe('Block', () => {
             )
         })
         it('Sets a `hash` that matches the difficulty criteria', () => {
-            expect<string>(minedBlock.getHash().substring(0, minedBlock.getDifficulty())).toEqual('0'.repeat(minedBlock.getDifficulty()))
+            expect<string>(hexToBinary(minedBlock.getHash()).substring(0, minedBlock.getDifficulty())).toEqual('0'.repeat(minedBlock.getDifficulty()))
         })
         it('Adjusts the difficulty Function to dynamically regulate the difficulty of the Blockchain at any given moment', () => {
             const possibleResults: number[] = [lastBlock.getDifficulty() + 1, lastBlock.getDifficulty() - 1]
             expect<boolean>(possibleResults.includes(minedBlock.getDifficulty())).toBe(true)
+        })
+        it('the hex-to-binary tool and the hex-to-binary-lookup return the same result', () => {
+            expect<string>(hexToBinary(minedBlock.getHash())).toEqual(
+                cryptoHashBinary(
+                    minedBlock.getTimestampString(),
+                    String(minedBlock.getNonce()),
+                    String(minedBlock.getDifficulty()),  
+                    minedBlock.getLastHash(), 
+                    minedBlock.getData()
+                )
+            )
         })
     })
     
