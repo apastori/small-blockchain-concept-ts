@@ -117,11 +117,41 @@ class Blockchain implements IBlockchain {
         return fakeChain
     }
 
+    fakeChainJumpedDifficulty(): Block[] {
+        const fakeChain: Block[] = new Array<Block>()
+        const currentChain: Block[] = this.getChain()
+        const randomIndex: number = Math.floor(Math.random() * (currentChain.length - 1)) + 1
+        this.getChain().forEach((block: Block, index: number) => {
+            if (index === randomIndex) {
+                const lastBlock: Block = fakeChain[fakeChain.length - 1]! as Block
+                const lastHash: string = lastBlock.getHash()
+                const timestamp: Date = new Date()
+                const nonce: number = lastBlock.getNonce()
+                const data: Data = 'jumped-difficulty-data'
+                const difficulty: number = lastBlock.getDifficulty() - 3
+                const hash: string = cryptoHash(timestamp.toISOString(), lastHash, String(lastBlock.getDifficulty()), String(nonce), data)
+                const badBlock: Block = new Block({
+                    timestamp,
+                    lastHash,
+                    hash,
+                    nonce,
+                    difficulty,
+                    data 
+                })
+                fakeChain.push(badBlock)
+                return
+            }
+            fakeChain.push(block)    
+        })
+        return fakeChain
+    }
+
     static isValidChain(chain: Block[]): boolean {
         if (JSON.stringify(chain[0]) !== JSON.stringify(Block.genesis())) return false
         for (let i = 1; i < chain.length; i++) {
             const block: Block = chain[i] as Block
             const correctLastHash: string = chain[i-1]!.getHash()
+            const lastDifficulty: number = chain[i-1]!.getDifficulty()
             const timestamp: Date = block.getTimestamp()
             const lastHash: string = block.getLastHash()
             const hash: string = block.getHash()
@@ -130,7 +160,8 @@ class Blockchain implements IBlockchain {
             const difficulty: number = block.getDifficulty()
             if (lastHash !== correctLastHash) return false
             const validatedHash: string = cryptoHash(timestamp.toISOString(), lastHash, data, String(nonce), String(difficulty))
-            if (hash !== validatedHash) return false     
+            if (hash !== validatedHash) return false
+            if (Math.abs(lastDifficulty - difficulty) > 1) return false 
         }
         return true
     }

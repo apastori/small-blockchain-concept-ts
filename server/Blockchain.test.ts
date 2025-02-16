@@ -1,5 +1,6 @@
 import { Block } from "./Block"
 import { Blockchain } from "./Blockchain"
+import { cryptoHash } from "./cryptoHash"
 import { GENESIS_BLOCK } from "./genesisBlock"
 import { Data } from "./types/Data"
 
@@ -46,6 +47,13 @@ describe('Blockchain', () => {
             describe('and the chain contains a block with an invalid field',  () => {
                 it('returns false', () => {
                     expect<boolean>(Blockchain.isValidChain(fakeChain.fakeChainInvalidData())).toBe(false)
+                })
+            })
+            describe('and the chain contains a block with a jumped difficulty',  () => {
+                it('returns false', () => {
+                    const fakeChainJumpedDifficulty: Block[] = fakeChain.fakeChainJumpedDifficulty()
+                    console.log(fakeChainJumpedDifficulty)
+                    expect<boolean>(Blockchain.isValidChain(fakeChainJumpedDifficulty)).toBe(false)
                 })
             })
             describe('and the chain does not contain any invalid blocks',  () => {
