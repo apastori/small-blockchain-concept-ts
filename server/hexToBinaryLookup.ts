@@ -1,5 +1,7 @@
+import { NoHexDigitError } from "./errors/NotHexDigitError"
 import { HexDigit } from "./types/HexDigit"
 import { HexToBinaryLookup } from "./types/HexToBinaryLookup"
+import { isHexDigit } from "./utils/isHexDigit"
 
 export function hexToBinary(hex: string) {
     let binaryHash: string = ''
@@ -28,6 +30,10 @@ export function hexToBinary(hex: string) {
         'F': '1111'
     }
     for (let i: number = 0; i < hex.length; i++) {
+        // Validate that the character is a valid hex digit
+        if (!isHexDigit(hex[i]!)) {
+            throw new NoHexDigitError('Invalid hex digit', hex[i]!)
+        }
         const hexChar: HexDigit = hex[i]!.toLowerCase() as HexDigit
         binaryHash += lookupHexBinary[hexChar]
     }
