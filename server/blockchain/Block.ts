@@ -1,11 +1,11 @@
-import { Data } from "./types/Data"
-import { IBlock } from "./types/IBlock"
-import { BlockParam } from "./types/BlockParam"
+import { Data } from "../types/Data"
+import { IBlock } from "../types/IBlock"
+import { BlockParam } from "../types/BlockParam"
 import { GENESIS_DATA } from './genesisData'
-import { MineBlock } from "./types/MineBlock"
-import { cryptoHash } from "./cryptoHash"
+import { MineBlock } from "../types/MineBlock"
+import { cryptoHash } from "../utils/cryptoHash"
 import { MINE_RATE } from "./mineRate"
-import { hexToBinary } from "./hexToBinary"
+import { hexToBinary } from "../utils/hexToBinary"
 
 class Block implements IBlock {
     private readonly timestamp: Date

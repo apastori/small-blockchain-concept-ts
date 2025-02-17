@@ -1,7 +1,7 @@
-import { NoHexDigitError } from "./errors/NotHexDigitError"
-import { HexDigit } from "./types/HexDigit"
-import { HexToBinaryLookup } from "./types/HexToBinaryLookup"
-import { isHexDigit } from "./utils/isHexDigit"
+import { NoHexDigitError } from "../errors/NotHexDigitError"
+import { HexDigit } from "../types/HexDigit"
+import { HexToBinaryLookup } from "../types/HexToBinaryLookup"
+import { isHexDigit } from "./isHexDigit"
 
 export function hexToBinaryLookup(hex: string) {
     let binaryHash: string = ''

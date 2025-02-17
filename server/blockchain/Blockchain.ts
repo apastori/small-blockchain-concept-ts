@@ -1,8 +1,8 @@
 import { Block } from "./Block"
-import { Data } from "./types/Data"
-import { IBlockchain } from "./types/IBlockchain"
+import { Data } from "../types/Data"
+import { IBlockchain } from "../types/IBlockchain"
 import { GENESIS_DATA } from "./genesisData"
-import { cryptoHash } from "./cryptoHash"
+import { cryptoHash } from "../utils/cryptoHash"
 
 class Blockchain implements IBlockchain {
     private chain: Block[]

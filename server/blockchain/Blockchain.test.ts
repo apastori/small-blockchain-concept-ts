@@ -1,8 +1,8 @@
 import { Block } from "./Block"
 import { Blockchain } from "./Blockchain"
-import { cryptoHash } from "./cryptoHash"
+import { cryptoHash } from "../utils/cryptoHash"
 import { GENESIS_BLOCK } from "./genesisBlock"
-import { Data } from "./types/Data"
+import { Data } from "../types/Data"
 
 describe('Blockchain', () => {
     let blockchain: Blockchain, newChain: Blockchain

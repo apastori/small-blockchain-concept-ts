@@ -1,10 +1,10 @@
 import { Block } from "./Block"
-import { cryptoHash } from "./cryptoHash"
-import { cryptoHashBinary } from "./cryptoHashBinary"
+import { cryptoHash } from "../utils/cryptoHash"
+import { cryptoHashBinary } from "../utils/cryptoHashBinary"
 import { GENESIS_BLOCK } from "./genesisBlock"
-import { hexToBinary } from "./hexToBinary"
+import { hexToBinary } from "../utils/hexToBinary"
 import { MINE_RATE } from "./mineRate"
-import { Data } from "./types/Data"
+import { Data } from "../types/Data"
 
 describe('Block', () => {
     const timestamp: Date = new Date()

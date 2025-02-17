@@ -1,4 +1,4 @@
-import { Block } from "../Block"
+import { Block } from "../blockchain/Block"
 import { Data } from "./Data"
 
 export interface MineBlock {

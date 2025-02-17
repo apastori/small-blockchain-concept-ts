@@ -1,5 +1,5 @@
 import { sha3_256 } from 'js-sha3'
-import { Data } from './types/Data'
+import { Data } from '../types/Data'
 import { hexToBinary } from './hexToBinary'
 
 export const cryptoHash = (...inputs: Data[]): string => {

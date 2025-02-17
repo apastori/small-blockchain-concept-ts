@@ -1,7 +1,7 @@
-import { NoHexDigitError } from "./errors/NotHexDigitError";
-import { BinaryFourBits } from "./types/BinaryFourBits"
-import { HexDigit } from "./types/HexDigit"
-import { isHexDigit } from "./utils/isHexDigit";
+import { NoHexDigitError } from "../errors/NotHexDigitError";
+import { BinaryFourBits } from "../types/BinaryFourBits"
+import { HexDigit } from "../types/HexDigit"
+import { isHexDigit } from "./isHexDigit";
 
 function hexToBinary(hex: string): string {
     const hexString: Array<HexDigit> = Array.from(hex) as Array<HexDigit>

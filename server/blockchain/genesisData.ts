@@ -1,4 +1,4 @@
-import type { BlockParam } from './types/BlockParam'
+import type { BlockParam } from '../types/BlockParam'
 
 const timestamp: Date = new Date()
 const lastHash: string = '0'
