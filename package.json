@@ -3,8 +3,9 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "start": "npx concurrently \"tsc --watch\" \"node --watch build/index.js\"",
-    "test": "jest --watchAll --config=jest.server.config.ts --color"
+    "start": "tsc && node build/index.js",
+    "test": "jest --watchAll --config=jest.server.config.ts --color",
+    "dev": "npx concurrently \"tsc --watch\" \"node --watch build/index.js\""
   },
   "keywords": [],
   "author": "",
