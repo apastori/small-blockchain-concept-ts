@@ -6,7 +6,7 @@ import type {
     RedisScripts  
 } from 'redis'
 
-export interface IPubSub {
+export interface IPubSubRedis {
     getPublisher(): RedisClientType<RedisModules, RedisFunctions, RedisScripts>
     getSubscriber(): RedisClientType<RedisModules, RedisFunctions, RedisScripts>
     handleMessage(channel: string, message: string): void

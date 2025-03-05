@@ -6,15 +6,18 @@ import type {
     RedisScripts  
 } from 'redis'
 import { objectStrKeyProp } from '../types/objectStrKeyProp'
-import { IPubSub } from '../types/IPubSub'
+import { IPubSubRedis } from '../types/IPubSubRedis'
 
 const Channels: objectStrKeyProp = {
     TEST: 'TEST'
 }
 
-class PubSub implements IPubSub {
+class PubSubRedis implements IPubSubRedis {
+
     private readonly publisher: RedisClientType<RedisModules, RedisFunctions, RedisScripts>
+
     private readonly subscriber: RedisClientType<RedisModules, RedisFunctions, RedisScripts>
+
     constructor() {
         this.publisher = createClient<RedisModules, RedisFunctions, RedisScripts>()
         this.subscriber = createClient<RedisModules, RedisFunctions, RedisScripts>()
@@ -25,9 +28,11 @@ class PubSub implements IPubSub {
             this.handleMessage(channel, message)
         })
     }
+
     getPublisher(): RedisClientType<RedisModules, RedisFunctions, RedisScripts> {
         return this.publisher
     }
+    
     getSubscriber(): RedisClientType<RedisModules, RedisFunctions, RedisScripts> {
         return this.subscriber
     }
@@ -37,8 +42,8 @@ class PubSub implements IPubSub {
     }
 }
 
-const testPubSub: PubSub = new PubSub()
+const testPubSub: PubSubRedis = new PubSubRedis()
 
 setTimeout(() => testPubSub.getPublisher().publish(Channels['TEST'] as string, 'foo'), 1000)
 
-export { PubSub }
+export { PubSubRedis }
