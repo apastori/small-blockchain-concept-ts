@@ -7,10 +7,13 @@ import type {
 } from 'redis'
 import { objectStrKeyProp } from '../types/objectStrKeyProp'
 import { IPubSubRedis } from '../types/IPubSubRedis'
-
-const Channels: objectStrKeyProp = {
-    TEST: 'TEST'
-}
+import { RedisPublisherError } from '../errors/RedisPublisherError'
+import { RedisSubscriberError } from '../errors/RedisSubscriberError'
+import { IPubMessage } from '../types/IPubMessage'
+import { Blockchain } from '../blockchain/Blockchain'
+import { Block } from '../blockchain/Block'
+import { isBlock } from '../utils/isBlock'
+import { CHANNELS } from './Channels'
 
 class PubSubRedis implements IPubSubRedis {
 
@@ -18,17 +21,31 @@ class PubSubRedis implements IPubSubRedis {
 
     private readonly subscriber: RedisClientType<RedisModules, RedisFunctions, RedisScripts>
 
-    constructor() {
+    private readonly blockchain: Blockchain
+
+    constructor({ blockchain }: { blockchain: Blockchain }) {
+        this.blockchain = blockchain
         this.publisher = createClient<RedisModules, RedisFunctions, RedisScripts>()
         this.subscriber = createClient<RedisModules, RedisFunctions, RedisScripts>()
-        this.subscriber.subscribe(Channels['TEST'] as string, (message: string) => {
-            console.log('Received message:', message)
-        })
-        this.subscriber.on('message', (channel: string, message: string) => {
+        this.subscribeToChannels(CHANNELS)
+        this.getSubscriber().on('message', (channel: string, message: string) => {
             this.handleMessage(channel, message)
         })
+        // You can also handle errors like this
+        this.getPublisher().on("error", (err: Error) => {
+            console.error(`Redis error [${err.name}]:`, err.message)
+            throw new RedisPublisherError(err.message) 
+        })
+        this.getSubscriber().on("error", (err: Error) => {
+            console.error(`Redis error [${err.name}]:`, err.message)
+            throw new RedisSubscriberError(err.message)    
+        })
     }
-
+    
+    getBlockchain(): Blockchain {
+        return this.blockchain
+    }
+    
     getPublisher(): RedisClientType<RedisModules, RedisFunctions, RedisScripts> {
         return this.publisher
     }
@@ -39,11 +56,44 @@ class PubSubRedis implements IPubSubRedis {
 
     handleMessage(channel: string, message: string): void {
         console.log('Message Received. Channel: ' + channel, 'Message is: ' + message)
+        const parsedMessage: string = JSON.parse(message)
+        if (!Array.isArray(parsedMessage)) {
+            console.log('message is not valid array chain')
+            return
+        }
+        if (!isBlock(parsedMessage)) {
+            console.log('one or more elements of array chain are not valid blocks')
+            return
+        }
+        const chainMessage: Block[] = parsedMessage as Block[]
+        if (channel === CHANNELS['BLOCKCHAIN']) {
+            this.getBlockchain().replaceChain(chainMessage)
+        }
     }
+
+    subscribeToChannels(channels: objectStrKeyProp): void {
+        Object.values(channels).forEach((channel: string) => {
+            this.subscriber.subscribe(channel, (message: string) => {
+                console.log('Received message:', message)
+            })
+        })
+    }
+
+    publishMessage({ channel, message }: IPubMessage): void {
+        this.getPublisher().publish(channel, message)
+    }
+
+    broadcastChain(): void {
+        this.publishMessage({
+            channel: CHANNELS['BLOCKCHAIN'] as string,
+            message: this.getBlockchain().getChainString()
+        })
+    }
+
 }
 
-const testPubSub: PubSubRedis = new PubSubRedis()
+//const testPubSub: PubSubRedis = new PubSubRedis(CHANNELS)
 
-setTimeout(() => testPubSub.getPublisher().publish(Channels['TEST'] as string, 'foo'), 1000)
+//setTimeout(() => testPubSub.getPublisher().publish(CHANNELS['TEST'] as string, 'foo'), 1000)
 
 export { PubSubRedis }

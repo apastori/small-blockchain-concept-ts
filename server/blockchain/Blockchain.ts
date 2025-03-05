@@ -19,6 +19,10 @@ class Blockchain implements IBlockchain {
         return this.chain.length
     }
 
+    getChainString(): string {
+        return JSON.stringify(this.getChain())
+    }
+
     getLastBlock(): Block {
         return this.getChain()[this.getChainLength() - 1] as Block
     }

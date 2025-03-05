@@ -9,23 +9,31 @@ const credentials: PubNubConfiguration = {
     secretKey: 'sec-c-MGJjODUwZDMtNTU1MS00YTA4LWE3YzctNzRkZDU2NzZjZjA3'
 }
 
-const Channels: objectStrKeyProp = {
-    TEST: 'TEST'
+const CHANNELS: objectStrKeyProp = {
+    TEST: 'TEST',
+    BLOCKCHAIN: 'BLOCKCHAIN'
 }
 
 class PubSubPubNub implements IPubSubPubNub {
 
     private readonly pubnub: PubNub
 
+    private readonly Id: string
+
     constructor(credentials: PubNubConfiguration, channels: objectStrKeyProp) {
+        this.Id = this.generateUserId()
         this.pubnub = new PubNub({
             ...credentials,
-            userId: this.generateUserId()
+            userId: this.getId()
         })
-        this.pubnub.subscribe({
+        this.getPubNub().subscribe({
             channels: Object.values(channels)
         })
-        this.pubnub.addListener(this.getListener())
+        this.getPubNub().addListener(this.getListener())
+    }
+
+    getId(): string {
+        return this.Id
     }
 
     getPubNub(): PubNub {
@@ -43,24 +51,24 @@ class PubSubPubNub implements IPubSubPubNub {
     }
 
     publishMessage({ channel, message }: Publish.PublishParameters): void {
-        this.pubnub.publish({
+        this.getPubNub().publish({
             channel, message
         })
     }
 
-    generateUserId(): string {
+    private generateUserId(): string {
         return uuidv4()
     }
 
 }
 
-const testPubSubPubNub: PubSubPubNub = new PubSubPubNub(credentials, Channels)
+// const testPubSubPubNub: PubSubPubNub = new PubSubPubNub(credentials, CHANNELS)
 
-setTimeout(() => {
-    testPubSubPubNub.publishMessage({ 
-        channel: Channels['TEST']!,
-        message: 'Hello PubNub' 
-    })
-}, 1000)
-
+// setTimeout(() => {
+//     testPubSubPubNub.publishMessage({ 
+//         channel: CHANNELS['TEST']!,
+//         message: 'Hello PubNub' 
+//     })
+// }, 1000)
+ 
 export { PubSubPubNub }
