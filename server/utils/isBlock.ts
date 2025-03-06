@@ -1,6 +1,5 @@
-export function isBlock(arr: any[]): boolean {
-    return arr.every((item: any) => {
-      return typeof item === 'object' && 
+export function isBlock(item: any): boolean {
+      return (typeof item === 'object' && 
       item !== null && 
       'timestamp' in item && 
       'lastHash' in item &&
@@ -8,6 +7,6 @@ export function isBlock(arr: any[]): boolean {
       'data' in item &&
       'nonce' in item &&
       'difficulty' in item
-    })
+    )
 }
   
