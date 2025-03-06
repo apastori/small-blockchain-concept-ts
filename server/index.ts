@@ -2,9 +2,18 @@ import express, { Application, Request, Response } from "express"
 import { Blockchain } from "./blockchain/Blockchain"
 import { Data } from "./types/Data"
 import bodyParser from "body-parser"
+import { PubSubPubNub } from "./PubSub/PubSubPubNub"
+import { Block } from "./blockchain/Block"
 
+//Setting up Blockchain
+const blockchain = new Blockchain()
+const pubsub: PubSubPubNub = new PubSubPubNub({ blockchain })
+
+//Setting the Express App
 const app: Application = express()
-const blockchain: Blockchain = new Blockchain()
+
+//Testing Broadcasting Chain
+setTimeout(() => pubsub.broadcastChain(), 1000)
 
 // Parse JSON request bodie
 app.use(bodyParser.json())

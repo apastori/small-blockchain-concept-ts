@@ -2,17 +2,12 @@ import PubNub, { PubNubConfiguration, Listener, Subscription, Publish} from "pub
 import { IPubSubPubNub } from "../types/IPubSubPubNub"
 import { objectStrKeyProp } from "../types/objectStrKeyProp"
 import { v4 as uuidv4 } from 'uuid'
-
-const credentials: PubNubConfiguration = {
-    publishKey: 'pub-c-cd4ec89b-ba1d-441a-b9c3-3d55cb74d7e7',
-    subscribeKey: 'sub-c-5a61b0eb-e431-40b9-8ad5-a4e5e48f4527',
-    secretKey: 'sec-c-MGJjODUwZDMtNTU1MS00YTA4LWE3YzctNzRkZDU2NzZjZjA3'
-}
-
-const CHANNELS: objectStrKeyProp = {
-    TEST: 'TEST',
-    BLOCKCHAIN: 'BLOCKCHAIN'
-}
+import { CHANNELS } from "./Channels"
+import { credentials } from "./credentials"
+import { Blockchain } from "../blockchain/Blockchain"
+import { IPubSubPubNubParams } from "../types/IPubSubPubNubParams"
+import { isBlock } from "../utils/isBlock"
+import { Block } from "../blockchain/Block"
 
 class PubSubPubNub implements IPubSubPubNub {
 
@@ -20,16 +15,23 @@ class PubSubPubNub implements IPubSubPubNub {
 
     private readonly Id: string
 
-    constructor(credentials: PubNubConfiguration, channels: objectStrKeyProp) {
+    private readonly blockchain: Blockchain
+
+    constructor({ blockchain }: IPubSubPubNubParams) {
+        this.blockchain = blockchain
         this.Id = this.generateUserId()
         this.pubnub = new PubNub({
             ...credentials,
             userId: this.getId()
         })
         this.getPubNub().subscribe({
-            channels: Object.values(channels)
+            channels: Object.values(CHANNELS)
         })
         this.getPubNub().addListener(this.getListener())
+    }
+
+    getBlockchain(): Blockchain {
+        return this.blockchain
     }
 
     getId(): string {
@@ -58,6 +60,30 @@ class PubSubPubNub implements IPubSubPubNub {
 
     private generateUserId(): string {
         return uuidv4()
+    }
+
+    handleMessage(channel: string, message: string): void {
+        console.log('Message Received. Channel: ' + channel, 'Message is: ' + message)
+        const parsedMessage: string = JSON.parse(message)
+        if (!Array.isArray(parsedMessage)) {
+            console.log('message is not valid array chain')
+            return
+        }
+        if (!isBlock(parsedMessage)) {
+            console.log('one or more elements of array chain are not valid blocks')
+            return
+        }
+        const chainMessage: Block[] = parsedMessage as Block[]
+        if (channel === CHANNELS['BLOCKCHAIN']) {
+            this.getBlockchain().replaceChain(chainMessage)
+        }
+    }
+
+    broadcastChain(): void {
+        this.publishMessage({
+            channel: CHANNELS['BLOCKCHAIN'] as string,
+            message: this.getBlockchain().getChainString()
+        })
     }
 
 }
