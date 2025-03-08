@@ -8,7 +8,8 @@
     "dev": "npx concurrently \"tsc --watch\" \"node --watch build/index.js\"",
     "devRedis": "npx concurrently \"npm run startRedis\" \"tsc --watch\" \"node --watch build/index.js\"",
     "devPeer": "npx concurrently \"cross-env GENERATE_PEER_PORT=true tsc --watch\" \"node --watch build/index.js\"",
-    "startRedis": "redis-server --daemonize yes"
+    "startRedis": "redis-server --daemonize yes",
+    "copyEnv": "ts-node server/copy_env.ts"
   },
   "keywords": [],
   "author": "",

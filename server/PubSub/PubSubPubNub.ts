@@ -3,7 +3,6 @@ import { IPubSubPubNub } from "../types/IPubSubPubNub"
 import { objectStrKeyProp } from "../types/objectStrKeyProp"
 import { v4 as uuidv4 } from 'uuid'
 import { CHANNELS } from "./Channels"
-import { credentials } from "./credentials"
 import { Blockchain } from "../blockchain/Blockchain"
 import { IPubSubPubNubParams } from "../types/IPubSubPubNubParams"
 import { isBlock } from "../utils/isBlock"
@@ -17,7 +16,7 @@ class PubSubPubNub implements IPubSubPubNub {
 
     private readonly blockchain: Blockchain
 
-    constructor({ blockchain }: IPubSubPubNubParams) {
+    constructor({ blockchain, credentials }: IPubSubPubNubParams) {
         this.blockchain = blockchain
         this.Id = this.generateUserId()
         this.pubnub = new PubNub({

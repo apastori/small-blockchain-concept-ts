@@ -3,5 +3,5 @@ import { Blockchain } from "../blockchain/Blockchain"
 
 export interface IPubSubPubNubParams {
     blockchain: Blockchain,
-    credentials?: PubNubConfiguration
+    credentials: PubNubConfiguration
 }
