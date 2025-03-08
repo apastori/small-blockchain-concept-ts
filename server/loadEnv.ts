@@ -48,11 +48,12 @@ const ProcessEnvParsed: {
     PUBNUB_CONFIG?: PubNubCredentials | undefined
 } = ProcessEnvSchema.parse(data)
 
-const { PORT } = ProcessEnvParsed
+const { PORT, PUBNUB_CONFIG } = ProcessEnvParsed
 
 const ProcessEnvFinal: IProcessEnv = {
     ...ProcessEnvParsed,
-    PORT: typeof PORT === 'string' ? PORT : String(PORT)
+    PORT: typeof PORT === 'string' ? PORT : String(PORT),
+    PUBNUB_CONFIG: PUBNUB_CONFIG ? JSON.stringify(PUBNUB_CONFIG) : undefined
 }
 
 console.log("here process", ProcessEnvFinal)

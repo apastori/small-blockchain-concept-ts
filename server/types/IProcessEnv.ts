@@ -7,5 +7,5 @@ export interface IProcessEnv {
     ENV: Environment
     HOST: string
     PUBSUB_TYPE: PubSubType
-    PUBNUB_CONFIG?: PubNubCredentials | undefined
+    PUBNUB_CONFIG?: string | undefined
 }

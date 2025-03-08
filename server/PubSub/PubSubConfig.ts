@@ -4,6 +4,9 @@ import { PubSubRedis } from "./PubSubRedis"
 import { PubNubConfigSchema } from "../schemas/PubNubConfigSchema"
 import { PubNubCredentials } from "../types/PubNubCredentials"
 import { PubNubConfiguration } from "pubnub"
+import { NoConfigPubNubError } from "../errors/NoConfigPubNubError"
+import { isValidJSON } from "../utils/isValidJSON"
+import { EnvInvalidJSONError } from "../errors/EnvInvalidJSONError"
 
 export const PubSubConfig = (blockchain: Blockchain): PubSubRedis | PubSubPubNub => {
     //Check if Local version Redis is configured
@@ -14,7 +17,9 @@ export const PubSubConfig = (blockchain: Blockchain): PubSubRedis | PubSubPubNub
     console.log(process.env.HOST, process.env.ENV)
     console.log(Object.keys(process.env).includes('PUBNUB_CONFIG'))
     console.log(process.env.PUBNUB_CONFIG)
-    const parsedPubSub: PubNubCredentials = PubNubConfigSchema.parse(process.env.PUBNUB_CONFIG || {})
+    if (!process.env.PUBNUB_CONFIG) throw new NoConfigPubNubError()
+    if (!isValidJSON(process.env.PUBNUB_CONFIG)) throw new EnvInvalidJSONError()
+    const parsedPubSub: PubNubCredentials = PubNubConfigSchema.parse(JSON.parse(process.env.PUBNUB_CONFIG))
     const credentials: PubNubConfiguration = {
         publishKey: parsedPubSub.PUBLISH_KEY,
         subscribeKey: parsedPubSub.SUBSCRIBE_KEY,
