@@ -13,10 +13,6 @@ export const PubSubConfig = (blockchain: Blockchain): PubSubRedis | PubSubPubNub
     if (process.env.PUBSUB_TYPE!.toLowerCase() === 'local') {
         return new PubSubRedis({ blockchain })
     }
-    console.log('SubPugConfig', process.env)
-    console.log(process.env.HOST, process.env.ENV)
-    console.log(Object.keys(process.env).includes('PUBNUB_CONFIG'))
-    console.log(process.env.PUBNUB_CONFIG)
     if (!process.env.PUBNUB_CONFIG) throw new NoConfigPubNubError()
     if (!isValidJSON(process.env.PUBNUB_CONFIG)) throw new EnvInvalidJSONError()
     const parsedPubSub: PubNubCredentials = PubNubConfigSchema.parse(JSON.parse(process.env.PUBNUB_CONFIG))

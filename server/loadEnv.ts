@@ -24,7 +24,6 @@ try {
 }
 
 // Check if the Loading Env Process string provided is not empty or undefined
-console.log(jsonStringEnv, typeof jsonStringEnv)
 
 if (!isValidString(jsonStringEnv)) throw new EnvInvalidStringError()
 
@@ -55,7 +54,5 @@ const ProcessEnvFinal: IProcessEnv = {
     PORT: typeof PORT === 'string' ? PORT : String(PORT),
     PUBNUB_CONFIG: PUBNUB_CONFIG ? JSON.stringify(PUBNUB_CONFIG) : undefined
 }
-
-console.log("here process", ProcessEnvFinal)
 
 export { ProcessEnvFinal }
