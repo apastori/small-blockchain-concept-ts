@@ -3,23 +3,26 @@ import { PortSchema } from './PortSchema'
 import { EnvironmentSchema } from './EnvironmentSchema'
 import { PubNubConfigSchema } from './PubNubConfigSchema'
 import { PubSubTypeSchema } from './PubSubTypeSchema'
+import { GeneratePeerPortSchema } from './GeneratePeerPortSchema'
 
 const ProcessEnvSchema = z.object({
     PORT: PortSchema,
     ENV: EnvironmentSchema,
     HOST: z.string(),
     PUBSUB_TYPE: PubSubTypeSchema,
-    PUBNUB_CONFIG: PubNubConfigSchema.optional()
+    PUBNUB_CONFIG: PubNubConfigSchema.optional(),
+    GENERATE_PEER_PORT: GeneratePeerPortSchema.optional()
 }).refine((data: {
     PORT: string | number
     ENV: "development" | "testing" | "production"
     HOST: string
     PUBSUB_TYPE: "cloud" | "local"
     PUBNUB_CONFIG?: {
-        PUBLISH_KEY: string;
-        SUBSCRIBE_KEY: string;
-        SECRET_KEY: string;
-    } | undefined;
+        PUBLISH_KEY: string
+        SUBSCRIBE_KEY: string
+        SECRET_KEY: string
+    } | undefined
+    GENERATE_PEER_PORT?: 'true' | 'false' | undefined
 }) => {
     // If PUBNUB_TYPE is 'cloud', PUBSUB_CONFIG must be present
     if (data['PUBSUB_TYPE'] === 'cloud') {

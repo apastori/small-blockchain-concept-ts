@@ -4,6 +4,7 @@ import { isValidCredentials } from "./isValidCredentials"
 import { isValidEnvironment } from "./isValidEnvironment"
 import { isValidObject } from "./isValidObject"
 import { isValidPort } from "./isValidPort"
+import { isValidStringBoolean } from "./isValidStringBoolean"
 
 export function isValidProcessEnv(obj: any): obj is IProcessEnv {
     return (
@@ -16,6 +17,10 @@ export function isValidProcessEnv(obj: any): obj is IProcessEnv {
             isValidCredentials(obj["PUBNUB_CONFIG"])
         ) || 
         obj["PUBSUB_TYPE"] === "local"
+      ) &&
+      (
+        obj["GENERATE_PEER_PORT"] === undefined ||
+        isValidStringBoolean(obj["GENERATE_PEER_PORT"])
       )
     )
 }

@@ -7,9 +7,8 @@
     "test": "jest --watchAll --config=jest.server.config.ts --color",
     "dev": "npx concurrently \"tsc --watch\" \"node --watch build/index.js\"",
     "devRedis": "npx concurrently \"npm run startRedis\" \"tsc --watch\" \"node --watch build/index.js\"",
-    "devPeer": "npx concurrently \"cross-env GENERATE_PEER_PORT=true tsc --watch\" \"node --watch build/index.js\"",
-    "startRedis": "redis-server --daemonize yes",
-    "copyEnv": "ts-node server/copy_env.ts"
+    "devPeer": "npx concurrently \"tsc --watch\" \"cross-env GENERATE_PEER_PORT=true node --watch build/index.js\"",
+    "startRedis": "redis-server --daemonize yes || echo 'Redis is already running'"
   },
   "keywords": [],
   "author": "",

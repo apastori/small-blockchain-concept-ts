@@ -20,7 +20,7 @@ const updatedEnv = customAssignProcess(process.env as objectStrKeyProp, ProcessE
 process.env = updatedEnv
 
 //Setting up the Port
-const PORT: string | '5000' = process.env.PORT || '5000'
+const DEFAULT_PORT: string | '5000' = process.env.PORT || '5000'
 
 //Setting up Blockchain
 const blockchain = new Blockchain()
@@ -49,5 +49,14 @@ app.post('/api/mine', (req: Request, res: Response) => {
     blockchain.addBlock({ data })
     res.send('Success creating Block')
 })
+
+let PEER_PORT: number = 0
+
+if (process.env['GENERATE_PEER_PORT'] === 'true') {
+    PEER_PORT = Number(DEFAULT_PORT) + Math.ceil(Math.random() * 1000)
+    process.env.PORT = String(PEER_PORT)
+}
+
+const PORT: string = Boolean(PEER_PORT) ? DEFAULT_PORT : String(PEER_PORT)
 
 startExpressServer(app, PORT)

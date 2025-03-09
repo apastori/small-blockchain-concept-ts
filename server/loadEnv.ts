@@ -12,6 +12,7 @@ import { Environment } from './types/Environment'
 import { PubSubType } from './types/PubSubType'
 import { PubNubCredentials } from './types/PubNubCredentials'
 import { IProcessEnv } from './types/IProcessEnv'
+import { StringBooleanType } from './types/StringBooleanType'
 
 let jsonStringEnv: string | undefined
 const envFilePath: string = join(__dirname, './env.json')
@@ -45,6 +46,7 @@ const ProcessEnvParsed: {
     HOST: string
     PUBSUB_TYPE: PubSubType
     PUBNUB_CONFIG?: PubNubCredentials | undefined
+    GENERATE_PEER_PORT?: StringBooleanType | undefined
 } = ProcessEnvSchema.parse(data)
 
 const { PORT, PUBNUB_CONFIG } = ProcessEnvParsed
