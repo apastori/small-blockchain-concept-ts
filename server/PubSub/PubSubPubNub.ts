@@ -5,8 +5,9 @@ import { v4 as uuidv4 } from 'uuid'
 import { CHANNELS } from "./Channels"
 import { Blockchain } from "../blockchain/Blockchain"
 import { IPubSubPubNubParams } from "../types/IPubSubPubNubParams"
-import { isBlock } from "../utils/isBlock"
 import { Block } from "../blockchain/Block"
+import { isString } from "../utils/isString"
+import { isBlockArray } from "../utils/isBlockArray"
 
 class PubSubPubNub implements IPubSubPubNub {
 
@@ -45,8 +46,8 @@ class PubSubPubNub implements IPubSubPubNub {
         return {
             message: (messageObject: Subscription.Message): void => {
                 const { channel, message } = messageObject
-                console.log(`Message Received. Channel: ${channel}`)
-                console.log(`Message: ${message}`)
+                if (!isString(message)) throw new Error('message is nota valid string')
+                this.handleMessage(channel, message as string)
             }
         }
     }
@@ -68,7 +69,8 @@ class PubSubPubNub implements IPubSubPubNub {
             console.log('message is not valid array chain')
             return
         }
-        if (!isBlock(parsedMessage)) {
+        console.log(typeof parsedMessage, parsedMessage)
+        if (!isBlockArray(parsedMessage)) {
             console.log('one or more elements of array chain are not valid blocks')
             return
         }

@@ -12,8 +12,8 @@ import { RedisSubscriberError } from '../errors/RedisSubscriberError'
 import { IPubMessage } from '../types/IPubMessage'
 import { Blockchain } from '../blockchain/Blockchain'
 import { Block } from '../blockchain/Block'
-import { isBlock } from '../utils/isBlock'
 import { CHANNELS } from './Channels'
+import { isBlockArray } from '../utils/isBlockArray'
 
 class PubSubRedis implements IPubSubRedis {
 
@@ -61,7 +61,7 @@ class PubSubRedis implements IPubSubRedis {
             console.log('message is not valid array chain')
             return
         }
-        if (!isBlock(parsedMessage)) {
+        if (!isBlockArray(parsedMessage)) {
             console.log('one or more elements of array chain are not valid blocks')
             return
         }

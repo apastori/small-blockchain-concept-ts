@@ -11,10 +11,11 @@ import { PubSubConfig } from "./PubSub/PubSubConfig"
 import { startExpressServer } from "./startServerExpress"
 import { customAssignProcess } from "./utils/customAssignProcess"
 import { objectStrKeyProp } from "./types/objectStrKeyProp"
+import { syncChains } from "./syncChains"
 
 //Setting up environment
 // Call the customAssignProcess function
-const updatedEnv = customAssignProcess(process.env as objectStrKeyProp, ProcessEnvFinal)
+const updatedEnv: NodeJS.ProcessEnv = customAssignProcess(process.env as objectStrKeyProp, ProcessEnvFinal)
 
 // Update process.env with the returned object
 process.env = updatedEnv
@@ -22,8 +23,11 @@ process.env = updatedEnv
 //Setting up the Port
 const DEFAULT_PORT: string | '5000' = process.env.PORT || '5000'
 
+//Root Node Address
+const ROOT_NODE_ADDRESS: string = `http://${process.env.HOST}:${DEFAULT_PORT}`
+
 //Setting up Blockchain
-const blockchain = new Blockchain()
+let blockchain = new Blockchain()
 
 //Setting Up PuhSub
 let pubsub: PubSubRedis | PubSubPubNub = PubSubConfig(blockchain)
@@ -47,7 +51,8 @@ app.get('/api/blocks', (_req: Request, res: Response): void => {
 app.post('/api/mine', (req: Request, res: Response) => {
     const { data }: { data: Data } = req.body
     blockchain.addBlock({ data })
-    res.send('Success creating Block')
+    pubsub.broadcastChain()
+    res.json(blockchain.getChain())
 })
 
 let PEER_PORT: number = 0
@@ -58,5 +63,9 @@ if (process.env['GENERATE_PEER_PORT'] === 'true') {
 }
 
 const PORT: string = Boolean(PEER_PORT) ? DEFAULT_PORT : String(PEER_PORT)
+
+if (Boolean(PEER_PORT)) {
+    blockchain = await syncChains(`${ROOT_NODE_ADDRESS}/api/blocks`, blockchain)
+}
 
 startExpressServer(app, PORT)
