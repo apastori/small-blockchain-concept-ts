@@ -52,7 +52,6 @@ describe('Blockchain', () => {
             describe('and the chain contains a block with a jumped difficulty',  () => {
                 it('returns false', () => {
                     const fakeChainJumpedDifficulty: Block[] = fakeChain.fakeChainJumpedDifficulty()
-                    console.log(fakeChainJumpedDifficulty)
                     expect<boolean>(Blockchain.isValidChain(fakeChainJumpedDifficulty)).toBe(false)
                 })
             })

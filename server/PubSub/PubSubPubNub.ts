@@ -46,7 +46,7 @@ class PubSubPubNub implements IPubSubPubNub {
         return {
             message: (messageObject: Subscription.Message): void => {
                 const { channel, message } = messageObject
-                if (!isString(message)) throw new Error('message is nota valid string')
+                if (!isString(message)) throw new Error('message is not a valid string')
                 this.handleMessage(channel, message as string)
             }
         }

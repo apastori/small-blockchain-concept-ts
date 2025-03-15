@@ -16,7 +16,7 @@ class Blockchain implements IBlockchain {
     }
 
     getChainLength(): number {
-        return this.chain.length
+        return this.getChain().length
     }
 
     getChainString(): string {
@@ -167,6 +167,55 @@ class Blockchain implements IBlockchain {
             if (hash !== validatedHash) return false
             if (Math.abs(lastDifficulty - difficulty) > 1) return false 
         }
+        return true
+    }
+
+    static isValidChainLog(chain: Block[]): boolean {
+        // Check genesis block
+        if (JSON.stringify(chain[0]) !== JSON.stringify(Block.genesis())) {
+            console.log('Genesis block mismatch')
+            return false
+        }
+        
+        for (let i = 1; i < chain.length; i++) {
+            const block: Block = chain[i] as Block
+            const correctLastHash: string = chain[i-1]!.getHash()
+            const lastDifficulty: number = chain[i-1]!.getDifficulty()
+            const timestamp: Date = block.getTimestamp()
+            const lastHash: string = block.getLastHash()
+            const hash: string = block.getHash()
+            const data: Data = block.getData()
+            const nonce: number = block.getNonce()
+            const difficulty: number = block.getDifficulty()
+            
+            // Check lastHash matches previous block's hash
+            if (lastHash !== correctLastHash) {
+                console.log(`Block ${i} has incorrect lastHash: ${lastHash} vs ${correctLastHash}`)
+                return false
+            }
+            
+            // Check block's hash is valid
+            const validatedHash: string = cryptoHash(timestamp.toISOString(), lastHash, data, String(nonce), String(difficulty))
+            if (hash !== validatedHash) {
+                console.log(`Block ${i} has invalid hash: ${hash} vs ${validatedHash}`)
+                console.log('Inputs to hash function:', {
+                    timestamp: timestamp.toISOString(),
+                    lastHash,
+                    data,
+                    nonce: String(nonce),
+                    difficulty: String(difficulty)
+                })
+                return false
+            }
+            
+            // Check difficulty adjustment is valid
+            if (Math.abs(lastDifficulty - difficulty) > 1) {
+                console.log(`Block ${i} has invalid difficulty jump: ${lastDifficulty} to ${difficulty}`)
+                return false
+            }
+        }
+        
+        console.log('Chain is valid')
         return true
     }
 }

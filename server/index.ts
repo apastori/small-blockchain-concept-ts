@@ -21,7 +21,7 @@ const updatedEnv: NodeJS.ProcessEnv = customAssignProcess(process.env as objectS
 process.env = updatedEnv
 
 //Setting up the Port
-const DEFAULT_PORT: string | '5000' = process.env.PORT || '5000'
+export const DEFAULT_PORT: string | '5000' = process.env.PORT || '5000'
 
 //Root Node Address
 const ROOT_NODE_ADDRESS: string = `http://${process.env.HOST}:${DEFAULT_PORT}`
@@ -48,6 +48,10 @@ app.get('/api/blocks', (_req: Request, res: Response): void => {
     res.json(blockchain.getChain())
 })
 
+app.get('/api/blocks/length', (_req: Request, res: Response) => {
+    res.json(blockchain.getChainLength())
+})
+
 app.post('/api/mine', (req: Request, res: Response) => {
     const { data }: { data: Data } = req.body
     blockchain.addBlock({ data })
@@ -62,10 +66,14 @@ if (process.env['GENERATE_PEER_PORT'] === 'true') {
     process.env.PORT = String(PEER_PORT)
 }
 
-const PORT: string = Boolean(PEER_PORT) ? DEFAULT_PORT : String(PEER_PORT)
+let syncWithRoot: ((url: string) => Promise<Blockchain | void>) | null = null
+
+export const PORT: string = Boolean(PEER_PORT) ? String(PEER_PORT) : DEFAULT_PORT
 
 if (Boolean(PEER_PORT)) {
-    blockchain = await syncChains(`${ROOT_NODE_ADDRESS}/api/blocks`, blockchain)
+    syncWithRoot = syncChains(blockchain) 
 }
 
-startExpressServer(app, PORT)
+startExpressServer({ app, PORT: DEFAULT_PORT, PEER_PORT, syncWithRoot })
+
+console.log("index ends")
