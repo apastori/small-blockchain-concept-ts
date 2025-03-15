@@ -73,14 +73,23 @@ class PubSubRedis implements IPubSubRedis {
 
     subscribeToChannels(channels: objectStrKeyProp): void {
         Object.values(channels).forEach((channel: string) => {
-            this.subscriber.subscribe(channel, (message: string) => {
+            this.getSubscriber().subscribe(channel, (message: string) => {
                 console.log('Received message:', message)
             })
         })
     }
 
     publishMessage({ channel, message }: IPubMessage): void {
-        this.getPublisher().publish(channel, message)
+        this.getSubscriber().unsubscribe(channel, () => {
+            this.getPublisher().publish(channel, message)
+                .then(() => {
+                    console.log("Message published successfully!")
+                    this.getSubscriber().subscribe(channel, (_) => {
+                        console.log('Listening for changes')
+                    })
+                })
+                .catch(console.error)
+        })
     }
 
     broadcastChain(): void {

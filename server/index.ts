@@ -36,7 +36,7 @@ let pubsub: PubSubRedis | PubSubPubNub = PubSubConfig(blockchain)
 const app: Application = express()
 
 //Testing Broadcasting Chain
-setTimeout(() => pubsub.broadcastChain(), 1000)
+//setTimeout(() => pubsub.broadcastChain(), 1000)
 
 // Parse JSON request bodie
 app.use(bodyParser.json())

@@ -1,6 +1,5 @@
 import PubNub, { PubNubConfiguration, Listener, Subscription, Publish} from "pubnub"
 import { IPubSubPubNub } from "../types/IPubSubPubNub"
-import { objectStrKeyProp } from "../types/objectStrKeyProp"
 import { v4 as uuidv4 } from 'uuid'
 import { CHANNELS } from "./Channels"
 import { Blockchain } from "../blockchain/Blockchain"
@@ -8,6 +7,7 @@ import { IPubSubPubNubParams } from "../types/IPubSubPubNubParams"
 import { Block } from "../blockchain/Block"
 import { isString } from "../utils/isString"
 import { isBlockArray } from "../utils/isBlockArray"
+import { PubNubPublishError } from "../errors/PubNubPublishError"
 
 class PubSubPubNub implements IPubSubPubNub {
 
@@ -53,9 +53,21 @@ class PubSubPubNub implements IPubSubPubNub {
     }
 
     publishMessage({ channel, message }: Publish.PublishParameters): void {
-        this.getPubNub().publish({
-            channel, message
-        })
+        //this.getPubNub().unsubscribe({ channels: [channel]})
+        this.unsubscribeWithPromise([channel])
+            .then(() => {
+                this.getPubNub().publish({
+                    channel, message
+                }, (status: PubNub.Status, _response: Publish.PublishResponse | null) => {
+                    if (status.error) {
+                        throw new PubNubPublishError("Error Publish PubNub:" + status.errorData || "General Error")
+                    }
+                    console.log("Subscribe again to channel")
+                    this.getPubNub().subscribe({
+                        channels: [channel]
+                    })
+                })  
+            })
     }
 
     private generateUserId(): string {
@@ -86,6 +98,35 @@ class PubSubPubNub implements IPubSubPubNub {
             message: this.getBlockchain().getChainString()
         })
     }
+
+    unsubscribeWithPromise(channels: string[]): Promise<void> {
+        const currentPubNub: PubNub = this.getPubNub()
+        return new Promise<void>((resolve: (value: void | PromiseLike<void>) => void) => {
+          const tempListener: Listener = {
+            status: function(statusEvent: PubNub.Status | PubNub.StatusEvent) {
+              console.log("Status event operation:", statusEvent.operation)
+              console.log("Status event category:", statusEvent.category)
+              console.log(typeof statusEvent, statusEvent)  
+              console.log(typeof statusEvent.affectedChannels, statusEvent.affectedChannels)
+              if (statusEvent.operation && statusEvent.operation === "PNUnsubscribeOperation" &&
+                  statusEvent.affectedChannels !== undefined &&
+                  !(statusEvent.affectedChannels instanceof Error) &&
+                  Array.isArray(statusEvent.affectedChannels)
+              ) {
+                  if (statusEvent.affectedChannels?.some((ch: any) => channels.includes(ch))) {
+                    console.log("executes resolve")
+                    currentPubNub.removeListener(tempListener)
+                    resolve()
+                  }
+                } else {
+                    console.log("not validation affectedMessages")
+                }
+            }
+          }
+          currentPubNub.addListener(tempListener)
+          currentPubNub.unsubscribe({channels: channels})
+        })
+    }  
 
 }
 
