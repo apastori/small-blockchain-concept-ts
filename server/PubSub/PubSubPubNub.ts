@@ -43,9 +43,15 @@ class PubSubPubNub implements IPubSubPubNub {
     }
 
     getListener(): Listener {
+        const userId: string = this.getId()
         return {
             message: (messageObject: Subscription.Message): void => {
-                const { channel, message } = messageObject
+                const { channel, message, publisher } = messageObject
+                console.log("userId", userId)
+                console.log(messageObject)
+                if (publisher === userId) {
+                    return
+                }
                 if (!isString(message)) throw new Error('message is not a valid string')
                 this.handleMessage(channel, message as string)
             }
@@ -54,20 +60,13 @@ class PubSubPubNub implements IPubSubPubNub {
 
     publishMessage({ channel, message }: Publish.PublishParameters): void {
         //this.getPubNub().unsubscribe({ channels: [channel]})
-        this.unsubscribeWithPromise([channel])
-            .then(() => {
-                this.getPubNub().publish({
-                    channel, message
-                }, (status: PubNub.Status, _response: Publish.PublishResponse | null) => {
-                    if (status.error) {
-                        throw new PubNubPublishError("Error Publish PubNub:" + status.errorData || "General Error")
-                    }
-                    console.log("Subscribe again to channel")
-                    this.getPubNub().subscribe({
-                        channels: [channel]
-                    })
-                })  
-            })
+        this.getPubNub().publish({
+            channel, message
+        }, (status: PubNub.Status, _response: Publish.PublishResponse | null) => {
+            if (status.error) {
+                throw new PubNubPublishError("Error Publish PubNub:" + status.errorData || "General Error")
+            }
+        })  
     }
 
     private generateUserId(): string {
@@ -114,7 +113,6 @@ class PubSubPubNub implements IPubSubPubNub {
                   Array.isArray(statusEvent.affectedChannels)
               ) {
                   if (statusEvent.affectedChannels?.some((ch: any) => channels.includes(ch))) {
-                    console.log("executes resolve")
                     currentPubNub.removeListener(tempListener)
                     resolve()
                   }
