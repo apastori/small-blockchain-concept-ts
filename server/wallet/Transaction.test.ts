@@ -1,5 +1,9 @@
+import { InputTransaction } from './InputTransaction'
+import { verifySignature } from '../utils/verifySignature'
 import { Transaction } from './Transaction'
 import { Wallet } from './Wallet'
+import { convertNumberValuesToString } from '../utils/convertNumberValuesToString'
+import { Data } from '../types/Data'
 
 describe('Transaction', () => {
     let transaction: Transaction
@@ -21,12 +25,33 @@ describe('Transaction', () => {
         });
     
         it('outputs the amount to the recipient', () => {
-          expect(transaction.getOutputMap()[recipient]).toEqual(amount)
+          expect<number | undefined>(transaction.getOutputMap()[recipient]).toEqual(amount)
         });
     
         it('outputs the remaining balance for the `senderWallet`', () => {
-          expect(transaction.getOutputMap()[senderWallet.getPublicKey()])
+          expect<number | undefined>(transaction.getOutputMap()[senderWallet.getPublicKey()])
             .toEqual(senderWallet.getBalance() - amount)
+        })
+    })
+    describe('input', () => {
+        it('has en input', () => {
+          expect<Transaction>(transaction).toHaveProperty('input')
+        })
+        it('has a "timestamp" in the input', () => {
+          expect<InputTransaction>(transaction.getInput()).toHaveProperty('timestamp')
+        })
+        it('sets the "amount" to the "SenderWallet" balance', () => {
+          expect<number>(transaction.getInput().getAmount()).toEqual(senderWallet.getBalance())
+        })
+        it('sets the "address" to the "SenderWallet" publicKey', () => {
+          expect<string>(transaction.getInput().getAddress()).toEqual(senderWallet.getPublicKey())
+        })
+        it('signs the input', () => {
+          verifySignature({
+            publicKey: senderWallet.getPublicKey(),
+            data: convertNumberValuesToString(transaction.getOutputMap()) as Data,
+            signature: transaction.getInput().getSignature()
+          })
         })
     })
 })
