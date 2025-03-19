@@ -4,6 +4,7 @@ import { Transaction } from './Transaction'
 import { Wallet } from './Wallet'
 import { convertNumberValuesToString } from '../utils/convertNumberValuesToString'
 import { Data } from '../types/Data'
+import { error } from 'console'
 
 describe('Transaction', () => {
     let transaction: Transaction
@@ -53,5 +54,36 @@ describe('Transaction', () => {
             signature: transaction.getInput().getSignature()
           })
         })
+    })
+    describe('validTransaction static function', () => {
+        let errorMock: jest.Mock
+        beforeEach(() => {
+            errorMock = jest.fn()
+            global.console.error = errorMock
+        })
+        describe('when the transaction is valid', () => {
+            it('returns true', () => {
+                expect<boolean>(Transaction.isValidTransaction(transaction)).toBe(true)
+            })  
+        })
+        describe('when the transaction is not valid, invalid', () => {
+            describe('because the OutputMap is invalid', () => {
+                it('returns false and logs error', () => {
+                  expect<boolean>(Transaction.isValidTransaction(
+                      Transaction.fakeTransactionInvalidPublicKey(
+                          transaction,
+                          senderWallet
+                      )
+                  )).toBe(false)
+                  expect(errorMock).toHaveBeenCalled()  
+                })
+            })
+            describe('becuase the transaction input signature is invalid', () => {
+                it ('returns false and logs error', () => {
+                  expect<boolean>(Transaction.isValidTransaction(transaction)).toBe(false)
+                  expect(errorMock).toHaveBeenCalled()    
+                })
+            })  
+        })  
     })
 })

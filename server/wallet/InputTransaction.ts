@@ -2,8 +2,8 @@ import { ec } from "elliptic";
 import { IInputTransaction } from "../types/IInputTransaction"
 import { Wallet } from "./Wallet"
 import { objectStrKeyIntValue } from "../types/objectStrKeyIntValue"
-import { convertNumberValuesToString } from "../utils/convertNumberValuesToString";
-import { Data } from "../types/Data";
+import { convertNumberValuesToString } from "../utils/convertNumberValuesToString"
+import { Data } from "../types/Data"
 
 class InputTransaction implements IInputTransaction {
     private readonly timestamp: number

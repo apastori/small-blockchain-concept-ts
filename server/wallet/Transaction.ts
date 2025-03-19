@@ -4,6 +4,9 @@ import { TransactionParams } from "../types/TransactionParams"
 import { v4 as uuidv4 } from 'uuid'
 import { Wallet } from "./Wallet"
 import { InputTransaction } from "./InputTransaction"
+import { verifySignature } from "../utils/verifySignature"
+import { convertNumberValuesToString } from "../utils/convertNumberValuesToString"
+import { Data } from "../types/Data"
 
 class Transaction {
     private readonly id: string
@@ -44,6 +47,62 @@ class Transaction {
             senderWallet,
             outputMap
         })
+    }
+
+    static fakeTransactionInvalidPublicKey(transaction: Transaction, senderWallet: Wallet): Transaction {
+        const outputAmount: objectStrKeyIntValue = transaction.getOutputMap()
+        const publicKeyKey: string = transaction.getInput().getAddress()
+        const outputMapKeys: string[] = Object.keys(outputAmount)
+        let recipient: string = ''
+        let amount: number = 0
+        if (outputMapKeys.length === 2) {
+            const filteredKeys: string[] = outputMapKeys.filter(key => key !== publicKeyKey)
+            if (filteredKeys.length === 1) {
+                recipient = filteredKeys[0] as string
+                amount = outputAmount[recipient] as number
+            }
+        }
+        if (!Boolean(recipient)) throw Error('invalid recipient value')
+        if (!Boolean(amount)) throw Error('invalid amount value')
+        const invalidTransaction = new Transaction({
+            senderWallet,
+            recipient,
+            amount
+        })
+        const fakeOutputMap: objectStrKeyIntValue = invalidTransaction.differentPublicKeyOutputMap(999999)
+        // Override the outputMap property
+        Object.defineProperty(invalidTransaction, 'outputMap', {
+            value: fakeOutputMap,
+            writable: false
+        })
+        return invalidTransaction
+    }
+
+    private differentPublicKeyOutputMap(publicKeyParam: number): objectStrKeyIntValue {
+        const outputMap: objectStrKeyIntValue = this.getOutputMap()
+        let publicKeyKey: string = this.getInput().getAddress()
+        return {
+            ...outputMap,
+            [publicKeyKey]: publicKeyParam
+        }
+    }
+
+    static isValidTransaction(transaction: Transaction): boolean {
+        const inputTransaction: InputTransaction = transaction.getInput()
+        const outputMap: objectStrKeyIntValue = transaction.getOutputMap()
+        const outputTotalValues: number = Object.values(outputMap)
+            .reduce((total, outputAmount) => total + outputAmount)
+
+        if (inputTransaction.getAmount() !== outputTotalValues) {
+            console.error(`Invalid transaction from ${inputTransaction.getAddress()}`)
+            return false
+        }
+
+        if (!verifySignature({ publicKey: inputTransaction.getAddress(), data: convertNumberValuesToString(outputMap) as Data, signature: inputTransaction.getSignature() })) {
+            console.error(`Invalid signature from ${inputTransaction.getAddress()}`)
+            return false
+        }
+        return true
     }
 }
 
