@@ -80,7 +80,12 @@ describe('Transaction', () => {
             })
             describe('becuase the transaction input signature is invalid', () => {
                 it ('returns false and logs error', () => {
-                  expect<boolean>(Transaction.isValidTransaction(transaction)).toBe(false)
+                  expect<boolean>(Transaction.isValidTransaction(
+                    Transaction.fakeTransactionInvalidSignature(
+                        transaction,
+                        senderWallet
+                    )
+                  )).toBe(false)
                   expect(errorMock).toHaveBeenCalled()    
                 })
             })  

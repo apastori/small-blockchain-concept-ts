@@ -19,16 +19,16 @@ class InputTransaction implements IInputTransaction {
         this.address = senderWallet.getPublicKey(),
         this.signature = senderWallet.sign(convertNumberValuesToString(outputMap) as Data)
     }
-    getTimestamp(): number {
+    public getTimestamp(): number {
         return this.timestamp
     }
-    getAmount(): number {
+    public getAmount(): number {
         return this.amount
     }
-    getAddress(): string {
+    public getAddress(): string {
         return this.address
     }
-    getSignature(): ec.Signature {
+    public getSignature(): ec.Signature {
         return this.signature
     } 
 }

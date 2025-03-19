@@ -18,19 +18,19 @@ class Transaction {
         this.input = this.createInput({ senderWallet, outputMap: this.outputMap })
     }
 
-    getOutputMap(): objectStrKeyIntValue {
+    public getOutputMap(): objectStrKeyIntValue {
         return this.outputMap
     }
 
-    getInput(): InputTransaction {
+    public getInput(): InputTransaction {
         return this.input
     }
 
-    getOutputMapString(): string {
+    public getOutputMapString(): string {
         return JSON.stringify(this.getOutputMap())
     }
 
-    createOutputMap({ senderWallet, recipient, amount}: TransactionParams): objectStrKeyIntValue {
+    private createOutputMap({ senderWallet, recipient, amount}: TransactionParams): objectStrKeyIntValue {
         const outputMap: objectStrKeyIntValue = {}
         if (PositiveIntegerSchema.parse(amount) && PositiveIntegerSchema.parse(senderWallet.getBalance())) {
             outputMap[recipient] = amount
@@ -39,7 +39,7 @@ class Transaction {
         return outputMap
     }
     
-    createInput({ senderWallet, outputMap}: { 
+    private createInput({ senderWallet, outputMap}: { 
         senderWallet: Wallet 
         outputMap: objectStrKeyIntValue
     }): InputTransaction {
@@ -50,16 +50,16 @@ class Transaction {
     }
 
     static fakeTransactionInvalidPublicKey(transaction: Transaction, senderWallet: Wallet): Transaction {
-        const outputAmount: objectStrKeyIntValue = transaction.getOutputMap()
+        const outputMap: objectStrKeyIntValue = transaction.getOutputMap()
         const publicKeyKey: string = transaction.getInput().getAddress()
-        const outputMapKeys: string[] = Object.keys(outputAmount)
+        const outputMapKeys: string[] = Object.keys(outputMap)
         let recipient: string = ''
         let amount: number = 0
         if (outputMapKeys.length === 2) {
             const filteredKeys: string[] = outputMapKeys.filter(key => key !== publicKeyKey)
             if (filteredKeys.length === 1) {
                 recipient = filteredKeys[0] as string
-                amount = outputAmount[recipient] as number
+                amount = outputMap[recipient] as number
             }
         }
         if (!Boolean(recipient)) throw Error('invalid recipient value')
@@ -73,6 +73,41 @@ class Transaction {
         // Override the outputMap property
         Object.defineProperty(invalidTransaction, 'outputMap', {
             value: fakeOutputMap,
+            writable: false
+        })
+        return invalidTransaction
+    }
+
+    static fakeTransactionInvalidSignature(transaction: Transaction, senderWallet: Wallet): Transaction {
+        const outputMap: objectStrKeyIntValue = transaction.getOutputMap()
+        const publicKeyKey: string = transaction.getInput().getAddress()
+        const outputMapKeys: string[] = Object.keys(outputMap)
+        let recipient: string = ''
+        let amount: number = 0
+        if (outputMapKeys.length === 2) {
+            const filteredKeys: string[] = outputMapKeys.filter(key => key !== publicKeyKey)
+            if (filteredKeys.length === 1) {
+                recipient = filteredKeys[0] as string
+                amount = outputMap[recipient] as number
+            }
+        }
+        if (!Boolean(recipient)) throw Error('invalid recipient value')
+        if (!Boolean(amount)) throw Error('invalid amount value')
+        const invalidTransaction = new Transaction({
+            senderWallet,
+            recipient,
+            amount
+        })
+        const newInputTransaction: InputTransaction = new InputTransaction({
+            senderWallet,
+            outputMap
+        })
+        Object.defineProperty(newInputTransaction, 'signature', {
+            value: new Wallet().sign('data'),
+            writable: false
+        })
+        Object.defineProperty(invalidTransaction, 'input', {
+            value: newInputTransaction,
             writable: false
         })
         return invalidTransaction
