@@ -4,7 +4,8 @@ import { Transaction } from './Transaction'
 import { Wallet } from './Wallet'
 import { convertNumberValuesToString } from '../utils/convertNumberValuesToString'
 import { Data } from '../types/Data'
-import { error } from 'console'
+import { objectStrKeyIntValue } from '../types/objectStrKeyIntValue'
+import { ec } from 'elliptic'
 
 describe('Transaction', () => {
     let transaction: Transaction
@@ -78,8 +79,8 @@ describe('Transaction', () => {
                   expect(errorMock).toHaveBeenCalled()  
                 })
             })
-            describe('becuase the transaction input signature is invalid', () => {
-                it ('returns false and logs error', () => {
+            describe('because the transaction input signature is invalid', () => {
+                it('returns false and logs error', () => {
                   expect<boolean>(Transaction.isValidTransaction(
                     Transaction.fakeTransactionInvalidSignature(
                         transaction,
@@ -90,5 +91,46 @@ describe('Transaction', () => {
                 })
             })  
         })  
+    })
+    describe('update() function to update Transaction', () => {
+      let originalSignature: ec.Signature, originalSenderOutput: number
+      let nextRecipient: string, nextAmount: number
+      describe('and the amount is invalid', () => {
+        it('throws an error', () => {
+          expect(() => {
+            transaction.update({
+              senderWallet, recipient: 'foo', amount: 999999
+            })
+          }).toThrow('Amount exceeds balance')
+        })
+      })
+  
+      describe('and the amount is valid', () => {
+        beforeEach(() => {
+          originalSignature = transaction.getInput().getSignature();
+          originalSenderOutput = transaction.getOutputMap()[senderWallet.getPublicKey()] as number
+          nextRecipient = 'next-recipient'
+          nextAmount = 50
+          transaction.update({
+            senderWallet, recipient: nextRecipient, amount: nextAmount
+          })
+        })
+        it('outputs the amount to the next recipient', () => {
+          expect<number>(transaction.getOutputMap()[nextRecipient] as number).toEqual(nextAmount)
+        })  
+        it('subtracts the amount from the original sender output amount', () => {
+          expect<number>(transaction.getOutputMap()[senderWallet.getPublicKey()] as number)
+            .toEqual(originalSenderOutput - nextAmount)
+        })
+        it('maintains a total output that matches the input amount', () => {
+          expect<number>(
+            Object.values(transaction.getOutputMap())
+              .reduce((total, outputAmount) => total + outputAmount)
+          ).toEqual(transaction.getInput().getAmount())
+        })
+        it('re-signs the transaction', () => {
+          expect<ec.Signature>(transaction.getInput().getSignature()).not.toEqual(originalSignature)
+        })    
+      })
     })
 })

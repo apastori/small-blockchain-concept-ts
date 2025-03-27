@@ -7,15 +7,16 @@ import { InputTransaction } from "./InputTransaction"
 import { verifySignature } from "../utils/verifySignature"
 import { convertNumberValuesToString } from "../utils/convertNumberValuesToString"
 import { Data } from "../types/Data"
+import { AmountExceedsBalanceError } from "../errors/AmountExceedBalanceError"
 
 class Transaction {
     private readonly id: string
-    private readonly outputMap: objectStrKeyIntValue
-    private readonly input: InputTransaction
+    private outputMap: objectStrKeyIntValue
+    private input: InputTransaction
     constructor({ senderWallet, recipient, amount}: TransactionParams) {
         this.id = uuidv4()
         this.outputMap = this.createOutputMap({ senderWallet, recipient, amount})
-        this.input = this.createInput({ senderWallet, outputMap: this.outputMap })
+        this.input = this.createInput({ senderWallet, outputMap: this.getOutputMap() })
     }
 
     public getOutputMap(): objectStrKeyIntValue {
@@ -28,6 +29,18 @@ class Transaction {
 
     public getOutputMapString(): string {
         return JSON.stringify(this.getOutputMap())
+    }
+
+    private setOutputMap(outputs: objectStrKeyIntValue): void {
+        const currentOutputMap: objectStrKeyIntValue = this.getOutputMap()
+        this.outputMap = {
+            ...currentOutputMap, 
+            ...outputs 
+        }
+    }
+
+    private setInput(newInput: InputTransaction): void {
+        this.input = newInput
     }
 
     private createOutputMap({ senderWallet, recipient, amount}: TransactionParams): objectStrKeyIntValue {
@@ -120,6 +133,22 @@ class Transaction {
             ...outputMap,
             [publicKeyKey]: publicKeyParam
         }
+    }
+
+    update({ senderWallet, recipient, amount}: {
+        senderWallet: Wallet
+        recipient: string
+        amount: number
+    }) {
+        if (amount > (this.getOutputMap()[senderWallet.getPublicKey()] as number)) throw new AmountExceedsBalanceError('Amount exceeds balance')
+        if (!this.getOutputMap()[recipient]) {
+            this.setOutputMap({[recipient]: amount})
+        } else {
+            this.setOutputMap({[recipient]: (this.getOutputMap()[recipient] as number) + amount})
+        }
+        const publicKey: string = senderWallet.getPublicKey()
+        this.setOutputMap({ [publicKey]: (this.getOutputMap()[senderWallet.getPublicKey()] as number) - amount })
+        this.setInput(this.createInput({ senderWallet, outputMap: this.getOutputMap() }))
     }
 
     static isValidTransaction(transaction: Transaction): boolean {
