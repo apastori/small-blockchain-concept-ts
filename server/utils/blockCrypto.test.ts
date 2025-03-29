@@ -1,3 +1,5 @@
+import { objectStrKeyIntValue } from "../types/objectStrKeyIntValue"
+import { objectStrKeyProp } from "../types/objectStrKeyProp"
 import { cryptoHash } from "./cryptoHash"
 
 describe('crypto hash function to generate SHA-3 Hash', () => {
@@ -6,5 +8,11 @@ describe('crypto hash function to generate SHA-3 Hash', () => {
     })
     it('produces the same hash with the same input arguments in any order', () => {
         expect<string>(cryptoHash('one', 'two', 'three')).toEqual(cryptoHash('three', 'one', 'two'))
+    })
+    it('produces a unique hash when the properties have changed on an input', () => {
+        const foo: objectStrKeyProp = {}
+        const originalHash = cryptoHash(foo)
+        foo['a'] = 'a'
+        expect<string>(cryptoHash(foo)).not.toEqual(originalHash)
     })
 })
