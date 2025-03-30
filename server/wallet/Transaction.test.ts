@@ -130,7 +130,27 @@ describe('Transaction', () => {
         })
         it('re-signs the transaction', () => {
           expect<ec.Signature>(transaction.getInput().getSignature()).not.toEqual(originalSignature)
-        })    
+        })
+        describe('and another update for the same recipient', () => {
+          let addedAmount: number
+  
+          beforeEach(() => {
+            addedAmount = 80
+            transaction.update({
+              senderWallet, recipient: nextRecipient, amount: addedAmount
+            })
+          })
+  
+          it('adds to the recipient amount', () => {
+            expect<number>(transaction.getOutputMap()[nextRecipient] as number)
+              .toEqual(nextAmount + addedAmount)
+          });
+  
+          it('subtracts the amount from the original sender output amount', () => {
+            expect<number>(transaction.getOutputMap()[senderWallet.getPublicKey()] as number)
+              .toEqual(originalSenderOutput - nextAmount - addedAmount)
+          })
+        })
       })
     })
 })
