@@ -17,16 +17,16 @@ class Wallet implements IWallet {
         this.keyPair = ellipticCurve.genKeyPair()
         this.publicKey = this.keyPair.getPublic().encode('hex', false)
     }
-    getBalance(): Integer<typeof this.balance> {
+    public getBalance(): Integer<typeof this.balance> {
         return this.balance
     }
-    getPublicKey(): string {
+    public getPublicKey(): string {
         return this.publicKey
     }
-    sign(data: Data): ec.Signature {
+    public sign(data: Data): ec.Signature {
         return this.keyPair.sign(cryptoHash(data))
     }
-    createTransaction({ recipient, amount }: {
+    public createTransaction({ recipient, amount }: {
         recipient: string
         amount: number
     }): Transaction {

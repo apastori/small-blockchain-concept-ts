@@ -8,8 +8,9 @@ import { verifySignature } from "../utils/verifySignature"
 import { convertNumberValuesToString } from "../utils/convertNumberValuesToString"
 import { Data } from "../types/Data"
 import { AmountExceedsBalanceError } from "../errors/AmountExceedBalanceError"
+import { ITransaction } from "../types/ITransaction"
 
-class Transaction {
+class Transaction implements ITransaction {
     private readonly id: string
     private outputMap: objectStrKeyIntValue
     private input: InputTransaction
@@ -17,6 +18,9 @@ class Transaction {
         this.id = uuidv4()
         this.outputMap = this.createOutputMap({ senderWallet, recipient, amount})
         this.input = this.createInput({ senderWallet, outputMap: this.getOutputMap() })
+    }
+    public getId(): string {
+        return this.id
     }
 
     public getOutputMap(): objectStrKeyIntValue {
@@ -135,7 +139,7 @@ class Transaction {
         }
     }
 
-    update({ senderWallet, recipient, amount}: {
+    public update({ senderWallet, recipient, amount}: {
         senderWallet: Wallet
         recipient: string
         amount: number
