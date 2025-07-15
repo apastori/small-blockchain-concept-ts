@@ -7,11 +7,16 @@ import { PubNubConfiguration } from "pubnub"
 import { NoConfigPubNubError } from "../errors/NoConfigPubNubError"
 import { isValidJSON } from "../utils/isValidJSON"
 import { EnvInvalidJSONError } from "../errors/EnvInvalidJSONError"
+import { Block } from "../blockchain/Block"
+import { TransactionPool } from "../wallet/TransactionPool"
 
-export const PubSubConfig = (blockchain: Blockchain): PubSubRedis | PubSubPubNub => {
+export const PubSubConfig = ({ blockchain, transactionPool }: {
+    blockchain: Blockchain,
+    transactionPool: TransactionPool
+}): PubSubRedis | PubSubPubNub => {
     //Check if Local version Redis is configured
     if (process.env.PUBSUB_TYPE!.toLowerCase() === 'local') {
-        return new PubSubRedis({ blockchain })
+        return new PubSubRedis({ blockchain, transactionPool })
     }
     if (!process.env.PUBNUB_CONFIG) throw new NoConfigPubNubError()
     if (!isValidJSON(process.env.PUBNUB_CONFIG)) throw new EnvInvalidJSONError()
@@ -22,5 +27,5 @@ export const PubSubConfig = (blockchain: Blockchain): PubSubRedis | PubSubPubNub
         secretKey: parsedPubSub.SECRET_KEY
     }
     // if not local the other option is cloud
-    return new PubSubPubNub({ blockchain, credentials })
+    return new PubSubPubNub({ blockchain, credentials, transactionPool })
 } 

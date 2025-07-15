@@ -7,4 +7,5 @@ export interface ITransaction {
     getOutputMap(): objectStrKeyIntValue
     getInput(): InputTransaction
     getOutputMapString(): string
+    getTransactionString(): string
 }

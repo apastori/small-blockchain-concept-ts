@@ -19,6 +19,7 @@ class Transaction implements ITransaction {
         this.outputMap = this.createOutputMap({ senderWallet, recipient, amount})
         this.input = this.createInput({ senderWallet, outputMap: this.getOutputMap() })
     }
+    
     public getId(): string {
         return this.id
     }
@@ -33,6 +34,10 @@ class Transaction implements ITransaction {
 
     public getOutputMapString(): string {
         return JSON.stringify(this.getOutputMap())
+    }
+
+    public getTransactionString(): string {
+        return JSON.stringify(this)
     }
 
     private setOutputMap(outputs: objectStrKeyIntValue): void {

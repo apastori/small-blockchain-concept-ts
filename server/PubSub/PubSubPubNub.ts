@@ -8,6 +8,9 @@ import { Block } from "../blockchain/Block"
 import { isString } from "../utils/isString"
 import { isBlockArray } from "../utils/isBlockArray"
 import { PubNubPublishError } from "../errors/PubNubPublishError"
+import { Transaction } from "../wallet/Transaction"
+import { TransactionSchema } from "../schemas/TransactionSchema"
+import { TransactionPool } from "../wallet/TransactionPool"
 
 class PubSubPubNub implements IPubSubPubNub {
 
@@ -17,8 +20,11 @@ class PubSubPubNub implements IPubSubPubNub {
 
     private readonly blockchain: Blockchain
 
-    constructor({ blockchain, credentials }: IPubSubPubNubParams) {
+    private readonly transactionPool: TransactionPool
+
+    constructor({ blockchain, credentials, transactionPool }: IPubSubPubNubParams) {
         this.blockchain = blockchain
+        this.transactionPool = transactionPool
         this.Id = this.generateUserId()
         this.pubnub = new PubNub({
             ...credentials,
@@ -29,20 +35,24 @@ class PubSubPubNub implements IPubSubPubNub {
         })
         this.getPubNub().addListener(this.getListener())
     }
-
-    getBlockchain(): Blockchain {
+    
+    public getBlockchain(): Blockchain {
         return this.blockchain
     }
 
-    getId(): string {
+    public getTransactinPool(): TransactionPool {
+        return this.transactionPool
+    }
+
+    public getId(): string {
         return this.Id
     }
 
-    getPubNub(): PubNub {
+    public getPubNub(): PubNub {
         return this.pubnub
     }
 
-    getListener(): Listener {
+    public getListener(): Listener {
         const userId: string = this.getId()
         return {
             message: (messageObject: Subscription.Message): void => {
@@ -58,7 +68,7 @@ class PubSubPubNub implements IPubSubPubNub {
         }
     }
 
-    publishMessage({ channel, message }: Publish.PublishParameters): void {
+    public publishMessage({ channel, message }: Publish.PublishParameters): void {
         //this.getPubNub().unsubscribe({ channels: [channel]})
         this.getPubNub().publish({
             channel, message
@@ -73,40 +83,54 @@ class PubSubPubNub implements IPubSubPubNub {
         return uuidv4()
     }
 
-    handleMessage(channel: string, message: string): void {
+    public handleMessage(channel: string, message: string): void {
         console.log('Message Received. Channel: ' + channel, 'Message is: ' + message)
-        const parsedMessage: string = JSON.parse(message)
-        if (!Array.isArray(parsedMessage)) {
-            console.log('message is not valid array chain')
-            return
-        }
-        console.log(typeof parsedMessage, parsedMessage)
-        if (!isBlockArray(parsedMessage)) {
-            console.log('one or more elements of array chain are not valid blocks')
-            return
-        }
-        const chainMessage: Block[] = parsedMessage as Block[]
+        const parsedMessage: any = JSON.parse(message)
         if (channel === CHANNELS['BLOCKCHAIN']) {
+            if (!Array.isArray(parsedMessage)) {
+                console.log('message is not valid array chain')
+                return
+            }
+            if (!isBlockArray(parsedMessage)) {
+                console.log('one or more elements of array chain are not valid blocks')
+                return
+            }
+            const chainMessage: Block[] = parsedMessage as Block[]
             this.getBlockchain().replaceChain(chainMessage)
+            return
         }
+        if (channel === CHANNELS['TRANSACTION']) {
+            if (!TransactionSchema.safeParse(parsedMessage).success) {
+                console.log('message is not valid Transaction')
+                return
+            }
+            const transactionMessage: Transaction = parsedMessage as Transaction
+            console.log(transactionMessage)
+            this.transactionPool.setTransaction(transactionMessage)
+            return
+        }
+        return
     }
 
-    broadcastChain(): void {
+    public broadcastChain(): void {
         this.publishMessage({
             channel: CHANNELS['BLOCKCHAIN'] as string,
             message: this.getBlockchain().getChainString()
         })
     }
 
-    unsubscribeWithPromise(channels: string[]): Promise<void> {
+    public broadcastTransaction(transaction: Transaction): void {
+        this.publishMessage({
+            channel: CHANNELS['TRANSACTION'] as string,
+            message: transaction.getTransactionString()
+        })
+    }
+
+    private unsubscribeWithPromise(channels: string[]): Promise<void> {
         const currentPubNub: PubNub = this.getPubNub()
         return new Promise<void>((resolve: (value: void | PromiseLike<void>) => void) => {
           const tempListener: Listener = {
             status: function(statusEvent: PubNub.Status | PubNub.StatusEvent) {
-              console.log("Status event operation:", statusEvent.operation)
-              console.log("Status event category:", statusEvent.category)
-              console.log(typeof statusEvent, statusEvent)  
-              console.log(typeof statusEvent.affectedChannels, statusEvent.affectedChannels)
               if (statusEvent.operation && statusEvent.operation === "PNUnsubscribeOperation" &&
                   statusEvent.affectedChannels !== undefined &&
                   !(statusEvent.affectedChannels instanceof Error) &&

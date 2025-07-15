@@ -14,6 +14,9 @@ import { Blockchain } from '../blockchain/Blockchain'
 import { Block } from '../blockchain/Block'
 import { CHANNELS } from './Channels'
 import { isBlockArray } from '../utils/isBlockArray'
+import { TransactionPool } from '../wallet/TransactionPool'
+import { Transaction } from '../wallet/Transaction'
+import { TransactionSchema } from '../schemas/TransactionSchema'
 
 class PubSubRedis implements IPubSubRedis {
 
@@ -23,8 +26,14 @@ class PubSubRedis implements IPubSubRedis {
 
     private readonly blockchain: Blockchain
 
-    constructor({ blockchain }: { blockchain: Blockchain }) {
+    private readonly transactionPool: TransactionPool
+
+    constructor({ blockchain, transactionPool }: { 
+        blockchain: Blockchain,
+        transactionPool: TransactionPool
+     }) {
         this.blockchain = blockchain
+        this.transactionPool = transactionPool
         this.publisher = createClient<RedisModules, RedisFunctions, RedisScripts>()
         this.subscriber = createClient<RedisModules, RedisFunctions, RedisScripts>()
         this.subscribeToChannels(CHANNELS)
@@ -42,36 +51,51 @@ class PubSubRedis implements IPubSubRedis {
         })
     }
     
-    getBlockchain(): Blockchain {
+    public getBlockchain(): Blockchain {
         return this.blockchain
     }
+
+    public getTransactinPool(): TransactionPool {
+        return this.transactionPool
+    }
     
-    getPublisher(): RedisClientType<RedisModules, RedisFunctions, RedisScripts> {
+    public getPublisher(): RedisClientType<RedisModules, RedisFunctions, RedisScripts> {
         return this.publisher
     }
     
-    getSubscriber(): RedisClientType<RedisModules, RedisFunctions, RedisScripts> {
+    public getSubscriber(): RedisClientType<RedisModules, RedisFunctions, RedisScripts> {
         return this.subscriber
     }
 
-    handleMessage(channel: string, message: string): void {
+    public handleMessage(channel: string, message: string): void {
         console.log('Message Received. Channel: ' + channel, 'Message is: ' + message)
-        const parsedMessage: string = JSON.parse(message)
-        if (!Array.isArray(parsedMessage)) {
-            console.log('message is not valid array chain')
-            return
-        }
-        if (!isBlockArray(parsedMessage)) {
-            console.log('one or more elements of array chain are not valid blocks')
-            return
-        }
-        const chainMessage: Block[] = parsedMessage as Block[]
+        const parsedMessage: any = JSON.parse(message)
         if (channel === CHANNELS['BLOCKCHAIN']) {
+            if (!Array.isArray(parsedMessage)) {
+                console.log('message is not valid array chain')
+                return
+            }
+            if (!isBlockArray(parsedMessage)) {
+                console.log('one or more elements of array chain are not valid blocks')
+                return
+            }
+            const chainMessage: Block[] = parsedMessage as Block[]
             this.getBlockchain().replaceChain(chainMessage)
+            return
         }
+        if (channel === CHANNELS['TRANSACTION']) {
+            if (!TransactionSchema.safeParse(parsedMessage).success) {
+                console.log('message is not valid Transaction')
+                return
+            }
+            const transactionMessage: Transaction = parsedMessage as Transaction
+            this.getTransactinPool().setTransaction(transactionMessage)
+            return
+        }
+        return
     }
 
-    subscribeToChannels(channels: objectStrKeyProp): void {
+    public subscribeToChannels(channels: objectStrKeyProp): void {
         Object.values(channels).forEach((channel: string) => {
             this.getSubscriber().subscribe(channel, (message: string) => {
                 console.log('Received message:', message)
@@ -79,7 +103,7 @@ class PubSubRedis implements IPubSubRedis {
         })
     }
 
-    publishMessage({ channel, message }: IPubMessage): void {
+    public publishMessage({ channel, message }: IPubMessage): void {
         this.getSubscriber().unsubscribe(channel, () => {
             this.getPublisher().publish(channel, message)
                 .then(() => {
@@ -92,10 +116,17 @@ class PubSubRedis implements IPubSubRedis {
         })
     }
 
-    broadcastChain(): void {
+    public broadcastChain(): void {
         this.publishMessage({
             channel: CHANNELS['BLOCKCHAIN'] as string,
             message: this.getBlockchain().getChainString()
+        })
+    }
+
+    public broadcastTransaction(transaction: Transaction): void {
+        this.publishMessage({
+            channel: CHANNELS['TRANSACTION'] as string,
+            message: transaction.getTransactionString()
         })
     }
 

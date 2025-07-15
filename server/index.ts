@@ -39,7 +39,7 @@ const transactionPool: TransactionPool = new TransactionPool()
 const wallet: Wallet = new Wallet()
 
 //Setting Up PuhSub
-let pubsub: PubSubRedis | PubSubPubNub = PubSubConfig(blockchain)
+let pubsub: PubSubRedis | PubSubPubNub = PubSubConfig({ blockchain, transactionPool })
 
 //Setting the Express App
 const app: Application = express()
@@ -85,7 +85,7 @@ app.post('/api/transact', (req: Request, res: Response): void => {
       return
     }
     transactionPool.setTransaction(transaction)
-    //pubsub.broadcastTransaction(transaction)
+    pubsub.broadcastTransaction(transaction)
     res.json({ type: 'success', transaction })
 })
 
